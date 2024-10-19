@@ -1,0 +1,24 @@
+name: 'Heal Trigger Action'
+description: 'Trigger a Heal suite execution and optionally wait for results'
+inputs:
+  api-token:
+    description: 'Heal API token'
+    required: true
+  suite-id:
+    description: 'Suite ID to trigger'
+    required: true
+  payload:
+    description: 'Optional payload in JSON format'
+    required: false
+    default: '{}'
+  wait-for-results:
+    description: 'Wait for the execution to finish (yes/no)'
+    required: false
+    default: 'yes'
+  domain:
+    description: 'Domain for Heal API (default: https://app.heal.dev)'
+    required: false
+    default: 'https://app.heal.dev'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
