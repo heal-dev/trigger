@@ -76,7 +76,8 @@ async function run() {
                     let allPassed = true;
                     for (const run of runs) {
                         core.info(`Run ${run.id} - status: ${run.status}, result: ${run.result}`);
-                        if (run.result !== 'passed') {
+                        core.info(`URL: ${run.url}`);
+                        if (run.result !== 'PASS') {
                             allPassed = false;
                         }
                     }
