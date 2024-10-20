@@ -34728,6 +34728,7 @@ async function run() {
         core.info(`Execution started with ID ${executionId}.`);
         core.setOutput('execution-id', executionId);
         core.setOutput('execution-url', url);
+        core.info(`execution-url:${url}`);
 
         // Decide whether to wait for results
         if (waitForResults.toLowerCase() === 'yes' || waitForResults.toLowerCase() === 'true') {
