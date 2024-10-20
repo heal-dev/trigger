@@ -8,7 +8,7 @@ async function run() {
         const suiteId = core.getInput('suite-id');
         const payloadInput = core.getInput('payload');
         const waitForResults = core.getInput('wait-for-results') || 'yes';
-        const domain = core.getInput('domain') || 'https://app.heal.dev';
+        const domain = core.getInput('domain') || 'https://api.heal.dev';
 
         // Parse and validate payload
         let payload;
