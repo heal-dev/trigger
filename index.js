@@ -25,6 +25,7 @@ async function run() {
         core.info(`Triggering suite execution at ${triggerUrl}...`);
 
         // Trigger the suite execution
+        core.debug(`POST ${triggerUrl} with payload: ${JSON.stringify(payload)}`);
         const triggerResponse = await axios.post(triggerUrl, payload, {
             headers: {
                 'Authorization': `Bearer ${apiToken}`,
