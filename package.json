@@ -1,17 +1,19 @@
 {
   "name": "heal-trigger-action",
+  "type": "module",
   "version": "1.0.0",
   "description": "Trigger a Heal suite execution and optionally wait for results",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build index.js --license licenses.txt"
+    "build": "ncc build index.js --license licenses.txt",
+    "test": "node --test test.js"
   },
   "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/github": "^6.0.0",
-    "axios": "^1.5.0"
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.34.0"
+    "@vercel/ncc": "^0.34.0",
+    "sinon": "^19.0.2"
   }
 }

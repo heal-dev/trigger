@@ -1,0 +1,44 @@
+name: Test Action
+
+on:
+  workflow_dispatch:  # Allows manual triggering of the test
+  pull_request:
+    branches:
+      - main  # Change as necessary
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20' 
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the Action
+        run: npm run build
+
+      - name: Run Action
+        id: my-action
+        uses: ./
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }}
+          suite-id: '455'
+          wait-for-results: 'yes'
+          domain: 'https://app.heal.dev'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-on-pr: 'yes'
+
+      - name: Assert Result
+        run: |
+          if [[ "${{ steps.my-action.outputs.execution-id }}" == "" ]]; then
+            echo "Action failed to return an execution ID."
+            exit 1
+          fi

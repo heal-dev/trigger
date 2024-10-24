@@ -1,5 +1,6 @@
 name: 'Heal Trigger Action'
 description: 'Trigger a Heal suite execution and optionally wait for results'
+author: 'Heal.dev'
 inputs:
   api-token:
     description: 'Heal API token'
@@ -19,6 +20,20 @@ inputs:
     description: 'Domain for Heal API (default: https://app.heal.dev)'
     required: false
     default: 'https://app.heal.dev'
+  github-token:
+    description: 'GitHub token for PR comments (optional)'
+    required: false
+    default: ''
+  comment-on-pr:
+    description: 'Whether to comment test results on PR (yes/no)'
+    required: false
+    default: 'no'
+outputs:
+  execution-id:
+    description: 'ID of the test suite execution'
+  execution-url:
+    description: 'URL of the test suite execution'
+
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: 'node20'
+  main: './index.js'

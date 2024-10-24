@@ -1,14 +1,59 @@
-const core = require('@actions/core');
-const axios = require('axios');
+import core from '@actions/core';
+import { context, getOctokit } from '@actions/github';
 
-async function run() {
+export async function createPRComment(token, body) {
+    if (!token || !context.payload.pull_request) {
+        return;
+    }
+
+    const octokit = getOctokit(token);
+    await octokit.rest.issues.createComment({
+        ...context.repo,
+        issue_number: context.payload.pull_request.number,
+        body: body
+    });
+}
+
+export function formatTestResults(results, url) {
+    const { runs } = results;
+    let comment = '## 🧪 Heal Test Results\n\n';
+    
+    const totalTests = runs.length;
+    const passedTests = runs.filter(run => run.result === 'PASS').length;
+    const failedTests = runs.filter(run => run.result === 'FAIL').length;
+    const agentNeedsInput = totalTests - passedTests - failedTests;
+    
+    comment += `### Summary\n`;
+    comment += `- Total Tests: ${totalTests}\n`;
+    comment += `- Passed: ✅ ${passedTests}\n`;
+    comment += `- Failed: 🔴 ${failedTests}\n`;
+    comment += `- Agent Needs Input: 🟡 ${agentNeedsInput}\n\n`;
+
+
+    comment += `##View Details: ${url} \n`;
+
+
+    return comment;
+}
+
+export async function run() {
     try {
+        const payloadnow = {
+            "stories": [
+              {
+                "id": 5053,
+                "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"
+              }
+            ]
+          }
         // Get inputs
         const apiToken = core.getInput('api-token');
         const suiteId = core.getInput('suite-id');
         const payloadInput = core.getInput('payload');
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
+        const commentOnPr = 'yes';
+        const githubToken = core.getInput('github-token');
 
         // Parse and validate payload
         let payload;
@@ -26,19 +71,26 @@ async function run() {
 
         // Trigger the suite execution
         core.debug(`POST ${triggerUrl} with payload: ${JSON.stringify(payload)}`);
-        const triggerResponse = await axios.post(triggerUrl, payload, {
+        const triggerResponse = await fetch(triggerUrl, {
+            method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiToken}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify(payload)
         });
+        
+        if (!triggerResponse.ok) {
+            throw new Error(`HTTP error! status: ${triggerResponse.status}`);
+        }
 
-        const { executionId, url } = triggerResponse.data;
+        const triggerData = await triggerResponse.json();
+        const { executionId, url } = triggerData;
 
         core.info(`Execution started with ID ${executionId}.`);
         core.setOutput('execution-id', executionId);
-        core.setOutput('execution-url', url);
-        core.info(`execution-url:${url}`);
+        core.setOutput('execution-url', `${url}?executionId=${executionId}`);
+        core.info(`execution-url: ${url}?executionId=${executionId}`);
 
         // Decide whether to wait for results
         if (waitForResults.toLowerCase() === 'yes' || waitForResults.toLowerCase() === 'true') {
@@ -59,15 +111,20 @@ async function run() {
                 await new Promise(resolve => setTimeout(resolve, 5000));
 
                 // Poll the execution status
-                const executionResponse = await axios.get(executionUrl, {
+                const executionResponse = await fetch(executionUrl, {
                     headers: {
                         'Authorization': `Bearer ${apiToken}`
                     }
                 });
+                
+                if (!executionResponse.ok) {
+                    throw new Error(`HTTP error! status: ${executionResponse.status}`);
+                }
 
-                const report = executionResponse.data;
+                const report = await executionResponse.json();
+
                 status = report.status;
-
+                console.log(JSON.stringify(report));  
                 core.info(`Execution status: ${status}`);
 
                 if (status === 'finished') {
@@ -80,6 +137,17 @@ async function run() {
                         core.info(`URL: ${run.url}`);
                         if (run.result !== 'PASS') {
                             allPassed = false;
+                        }
+                    }
+                    
+                    // Post comment to PR if requested
+                    if (commentOnPr === 'yes' || commentOnPr === 'true') {
+                        try {
+                            const comment = formatTestResults(report, `${url}?executionId=${executionId}`);
+                            await createPRComment(githubToken, comment);
+                            core.info('Posted test results to PR');
+                        } catch (error) {
+                            core.warning(`Failed to post PR comment: ${error.message}`);
                         }
                     }
 
