@@ -35,7 +35,5 @@ outputs:
     description: 'URL of the test suite execution'
 
 runs:
-  uses: actions/setup-node@v4
-    with:
-      node-version: 22
+  using: 'node20'
   main: './index.js'

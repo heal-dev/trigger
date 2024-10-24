@@ -38,21 +38,13 @@ export function formatTestResults(results, url) {
 
 export async function run() {
     try {
-        const payloadnow = {
-            "stories": [
-              {
-                "id": 5053,
-                "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"
-              }
-            ]
-          }
         // Get inputs
         const apiToken = core.getInput('api-token');
         const suiteId = core.getInput('suite-id');
         const payloadInput = core.getInput('payload');
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
-        const commentOnPr = 'yes';
+        const commentOnPr = core.getInput('comment-on-pr') || 'yes';
         const githubToken = core.getInput('github-token');
 
         // Parse and validate payload

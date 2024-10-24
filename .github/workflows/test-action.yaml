@@ -32,7 +32,7 @@ jobs:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
           suite-id: '455'
           wait-for-results: 'yes'
-          domain: 'https://app.heal.dev'
+          domain: 'https://api-staging.heal.dev'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: 'yes'
 
