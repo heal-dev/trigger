@@ -17,7 +17,7 @@ To use the **Heal Trigger Action** in your GitHub workflow, include the followin
         "stories": [
           {
             "id": 5053,
-            "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"  # Required: Your product URL.
+            "entryHref": "${{ url }}" 
           }
         ]
       }
@@ -29,15 +29,15 @@ To use the **Heal Trigger Action** in your GitHub workflow, include the followin
 
 ## Inputs
 
-| Input              | Required | Description                                           |
-|--------------------|----------|-------------------------------------------------------|
-| `api-token`        | ✅       | Your Heal API token.                                   |
-| `suite-id`         | ✅       | The ID of the test suite.                              |
-| `payload`          | ❌       | Optional JSON payload for the action.                  |
-| `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).          |
-| `domain`           | ❌       | (default: `https://api.heal.dev`).                     |
-| `github-token`     | ❌       | GitHub token for PR comments (optional).               |
-| `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`). |
+| Input              | Required | Description                                                 |
+|--------------------|----------|-------------------------------------------------------      |
+| `api-token`        | ✅       | Your Heal API token.                                        |
+| `suite-id`         | ✅       | The ID of the test suite.                                   |
+| `payload`          | ❌       | Optional. If empty, all stories under the suite will be run.|
+| `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).               |
+| `domain`           | ❌       | (default: `https://api.heal.dev`).                          |
+| `github-token`     | ❌       | GitHub token for PR comments (optional).                    |
+| `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).      |
 
 ## Outputs
 
@@ -75,7 +75,7 @@ jobs:
               "stories": [
                 {
                   "id": 5053,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"  # Required: Your product URL.
+                  "entryHref": "${{ url }}"  
                 }
               ]
             }

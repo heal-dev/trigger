@@ -1,4 +1,4 @@
-import core from '@actions/core';
+import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 
 export async function createPRComment(token, body) {
@@ -28,11 +28,7 @@ export function formatTestResults(results, url) {
     comment += `- Passed: ✅ ${passedTests}\n`;
     comment += `- Failed: 🔴 ${failedTests}\n`;
     comment += `- Agent Needs Input: 🟡 ${agentNeedsInput}\n\n`;
-
-
-    comment += `##View Details: ${url} \n`;
-
-
+    comment += `## View Details: ${url} \n`;
     return comment;
 }
 
@@ -80,9 +76,9 @@ export async function run() {
         const { executionId, url } = triggerData;
 
         core.info(`Execution started with ID ${executionId}.`);
+        core.info(`execution-url: ${url}`);
         core.setOutput('execution-id', executionId);
-        core.setOutput('execution-url', `${url}?executionId=${executionId}`);
-        core.info(`execution-url: ${url}?executionId=${executionId}`);
+        core.setOutput('execution-url', url);
 
         // Decide whether to wait for results
         if (waitForResults.toLowerCase() === 'yes' || waitForResults.toLowerCase() === 'true') {
@@ -125,7 +121,8 @@ export async function run() {
                     const runs = report.runs;
                     let allPassed = true;
                     for (const run of runs) {
-                        core.info(`Run ${run.id} - status: ${run.status}, result: ${run.result}`);
+                        const result = run.result === 'CRASH'?  'The agent needs more input to complete these stories' : run.result;
+                        core.info(`Run ${run.id} - status: ${run.status}, result: ${result}`);
                         core.info(`URL: ${run.url}`);
                         if (run.result !== 'PASS') {
                             allPassed = false;
@@ -146,7 +143,7 @@ export async function run() {
                     if (allPassed) {
                         core.info('All runs passed.');
                     } else {
-                        core.setFailed('One or more runs failed.');
+                        core.setFailed(`One or more runs failed. Check details here: ${url}?executionId=${executionId}`);
                     }
                 }
             }

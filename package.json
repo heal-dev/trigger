@@ -3,17 +3,30 @@
   "type": "module",
   "version": "1.0.0",
   "description": "Trigger a Heal suite execution and optionally wait for results",
-  "main": "dist/index.js",
+  "exports": "./src/index.js",
   "scripts": {
-    "build": "ncc build index.js --license licenses.txt",
-    "test": "node --test test.js"
+    "build": "node build.js",
+    "test": "jest --no-silent"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "*.js",
+      "!babel.config.js"
+    ]
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.34.0",
-    "sinon": "^19.0.2"
+    "@babel/core": "^7.25.9",
+    "@babel/preset-env": "^7.25.9",
+    "esbuild": "^0.20.0",
+    "eslint": "^9.13.0",
+    "jest": "^29.7.0"
   }
 }
