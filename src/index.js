@@ -30,30 +30,29 @@ export async function createTestSummary(results) {
         .addTable([tableHeader, tableRow]);
     core.summary.addHeading('Test Results', 3);
 
-    if (failedTests.length > 0) {
-        console.log('Failed Tests');
-        core.info('Failed Tests');
-        core.summary.addHeading('Failed Tests', 4);
-        failedTests.forEach(run => {
-            core.info(`22222Run ${run.id} - status: ${run.status}, result: ${run.result}`);
-            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
-        });
-    }
 
-    if (pendingTests.length > 0) {
-        console.log('Pending Tests');
-        core.summary.addHeading('Tests Needing More Input', 4);
-        pendingTests.forEach(run => {
-            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link);
-        });
-    }
+    console.log('Failed Tests');
+    core.info('Failed Tests');
+    core.summary.addHeading('Failed Tests', 4);
+    failedTests.forEach(run => {
+        core.info(`22222Run ${run.id} - status: ${run.status}, result: ${run.result}`);
+        core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
+    });
 
-    if (passedTests.length > 0) {
-        core.summary.addHeading('Passed Tests', 4);
-        passedTests.forEach(run => {
-            core.summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link);
-        });
-    }
+
+
+    console.log('Pending Tests');
+    core.summary.addHeading('Tests Needing More Input', 4);
+    pendingTests.forEach(run => {
+        core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link);
+    });
+
+
+    core.summary.addHeading('Passed Tests', 4);
+    passedTests.forEach(run => {
+        core.summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link);
+    });
+
 
     await core.summary.write();
     return '';
