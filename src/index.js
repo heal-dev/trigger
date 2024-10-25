@@ -91,7 +91,7 @@ function formatTestDetail(emoji, run) {
 
 
 export async function createPRComment(body) {
-    const githubToken = process.env.GITHUB_TOKEN;
+    const githubToken = context.token;;
     console.log('GITHUB_TOKEN', githubToken);
     if (!githubToken || !context.payload.pull_request) {
         return;
