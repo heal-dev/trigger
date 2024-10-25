@@ -24,11 +24,33 @@ export function formatTestResults(results, url) {
     const agentNeedsInput = totalTests - passedTests - failedTests;
 
     comment += `### Summary\n`;
-    comment += `- Total Tests: ${totalTests}\n`;
-    comment += `- Passed: ✅ ${passedTests}\n`;
-    comment += `- Failed: 🔴 ${failedTests}\n`;
-    comment += `- Agent Needs Input: 🟡 ${agentNeedsInput}\n\n`;
-    comment += `View Details: ${url} \n`;
+    comment += `- **Total Tests**: ${totalTests}\n`;
+    comment += `- **Passed**: ✅ ${passedTests}\n`;
+    comment += `- **Failed**: 🔴 ${failedTests}\n`;
+    comment += `- **Agent Needs More Input**: 🟡 ${agentNeedsInput}\n\n`;
+
+    if (failedTests > 0) {
+        comment += `### Failed Tests\n`;
+        for (const run of runs) {
+            if (run.result !== 'PASS') {
+                comment += `- **Run ${run.id}**: [View Details](${run.link})\n`;
+            }
+        }
+        comment += `\n`;
+    }
+
+    if (agentNeedsInput > 0) {
+        comment += `### Agent Needs More Input Tests\n`;
+        for (const run of runs) {
+            if (run.result === 'CRASH') {
+                comment += `- **Run ${run.id}**: [View Details](${run.link})\n`;
+            }
+        }
+        comment += `\n`;
+    }
+
+    comment += `[View All Details](${url})\n`;
+
     return comment;
 }
 
