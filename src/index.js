@@ -17,12 +17,12 @@ export async function createPRComment(token, body) {
 export function formatTestResults(results, url) {
     const { runs } = results;
     let comment = '## 🧪 Heal Test Results\n\n';
-    
+
     const totalTests = runs.length;
     const passedTests = runs.filter(run => run.result === 'PASS').length;
     const failedTests = runs.filter(run => run.result === 'FAIL').length;
     const agentNeedsInput = totalTests - passedTests - failedTests;
-    
+
     comment += `### Summary\n`;
     comment += `- Total Tests: ${totalTests}\n`;
     comment += `- Passed: ✅ ${passedTests}\n`;
@@ -67,7 +67,7 @@ export async function run() {
             },
             body: JSON.stringify(payload)
         });
-        
+
         if (!triggerResponse.ok) {
             throw new Error(`HTTP error! status: ${triggerResponse.status}`);
         }
@@ -104,7 +104,7 @@ export async function run() {
                         'Authorization': `Bearer ${apiToken}`
                     }
                 });
-                
+
                 if (!executionResponse.ok) {
                     throw new Error(`HTTP error! status: ${executionResponse.status}`);
                 }
@@ -112,7 +112,6 @@ export async function run() {
                 const report = await executionResponse.json();
 
                 status = report.status;
-                console.log(JSON.stringify(report));  
                 core.info(`Execution status: ${status}`);
 
                 if (status === 'finished') {
@@ -121,14 +120,14 @@ export async function run() {
                     const runs = report.runs;
                     let allPassed = true;
                     for (const run of runs) {
-                        const result = run.result === 'CRASH'?  'The agent needs more input to complete these stories' : run.result;
+                        const result = (run.result === 'CRASH') ? 'The agent needs more input to complete these stories' : run.result;
                         core.info(`Run ${run.id} - status: ${run.status}, result: ${result}`);
-                        core.info(`URL: ${run.url}`);
+                        core.info(`URL: ${run.link}`);
                         if (run.result !== 'PASS') {
                             allPassed = false;
                         }
                     }
-                    
+
                     // Post comment to PR if requested
                     if (commentOnPr === 'yes' || commentOnPr === 'true') {
                         try {

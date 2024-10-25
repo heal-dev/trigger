@@ -2,12 +2,10 @@ import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 import { createPRComment, formatTestResults, run } from '../src/index.js';
 
-// Mock the external modules
+
 jest.mock('@actions/core');
 jest.mock('@actions/github');
 
-// Mock global fetch
-// global.fetch = jest.fn();
 
 describe('GitHub Action Tests', () => {
     // Clear all mocks before each test
@@ -22,11 +20,11 @@ describe('GitHub Action Tests', () => {
 
     describe('createPRComment', () => {
         it('should create a PR comment successfully', async () => {
-            // Mock context
+
             context.payload = { pull_request: { number: 123 } };
             context.repo = { owner: 'test-owner', repo: 'test-repo' };
 
-            // Mock octokit
+
             const mockCreateComment = jest.fn();
             getOctokit.mockReturnValue({
                 rest: {
@@ -124,7 +122,7 @@ describe('GitHub Action Tests', () => {
         };
 
         beforeEach(() => {
-            // Mock core.getInput to return our mock values
+
             core.getInput.mockImplementation((name) => mockInputs[name]);
         });
 
@@ -137,7 +135,7 @@ describe('GitHub Action Tests', () => {
                 })
             };
 
-            // Mock the status check responses - first running, then finished
+
             const runningResponse = {
                 ok: true,
                 json: () => Promise.resolve({
