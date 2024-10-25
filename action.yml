@@ -1,6 +1,7 @@
 name: "Heal Trigger Action"
 description: "Trigger a Heal suite execution and optionally wait for results"
 author: "Heal.dev"
+
 inputs:
   api-token:
     description: "Heal API token"
@@ -20,14 +21,33 @@ inputs:
     description: "Domain for Heal API (default: https://app.heal.dev)"
     required: false
     default: "https://app.heal.dev"
-  github-token:
-    description: The GitHub token used to post comments on pull requests
-    default: ${{ github.token }}
   comment-on-pr:
     description: "Whether to comment test results on PR (yes/no)"
     required: false
     default: "no"
 
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Install Dependencies
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        npm ci
+
+    - name: Run Heal Tests
+      shell: node
+      working-directory: ${{ github.action_path }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        HEAL_API_TOKEN: ${{ inputs.api-token }}
+        HEAL_SUITE_ID: ${{ inputs.suite-id }}
+        HEAL_PAYLOAD: ${{ inputs.payload }}
+        HEAL_WAIT_FOR_RESULTS: ${{ inputs.wait-for-results }}
+        HEAL_DOMAIN: ${{ inputs.domain }}
+        HEAL_COMMENT_ON_PR: ${{ inputs.comment-on-pr }}
+      run: ./dist/index.js

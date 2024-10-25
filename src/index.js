@@ -42,7 +42,7 @@ export async function createTestSummary(results, url) {
             core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link).addEOL();
         });
     }
-    core.summary.addLink('View All Details', url).addEOL();
+    core.summary.addBreak().addLink('View All Details', url).addEOL();
     await core.summary.write();
     return '';
 }
@@ -105,13 +105,13 @@ export function formatTestResults(results, url) {
 export async function run() {
     try {
         // Get inputs
-        const apiToken = core.getInput('api-token');
-        const suiteId = core.getInput('suite-id');
-        const payloadInput = core.getInput('payload');
-        const waitForResults = core.getInput('wait-for-results') || 'yes';
-        const domain = core.getInput('domain') || 'https://api.heal.dev';
-        const commentOnPr = core.getInput('comment-on-pr') || 'yes';
-        const githubToken = core.getInput('github-token');
+        const apiToken = process.env.HEAL_API_TOKEN;
+        const suiteId = process.env.HEAL_SUITE_ID;
+        const payloadInput = process.env.HEAL_PAYLOAD;
+        const waitForResults = process.env.HEAL_WAIT_FOR_RESULTS || 'yes';
+        const domain = process.env.DOMAIN || 'https://api.heal.dev';
+        const commentOnPr = process.env.HEAL_COMMENT_ON_PR || 'yes';
+        const githubToken = process.env.GITHUB_TOKEN;
 
         // Parse and validate payload
         let payload;
