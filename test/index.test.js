@@ -21,8 +21,6 @@ describe('GitHub Action Tests', () => {
     describe('createPRComment', () => {
         it('should create a PR comment successfully', async () => {
 
-            process.env.GITHUB_TOKEN = 'test-github-token';
-
             context.payload = { pull_request: { number: 123 } };
             context.repo = { owner: 'test-owner', repo: 'test-repo' };
 
@@ -36,7 +34,7 @@ describe('GitHub Action Tests', () => {
                 }
             });
 
-            await createPRComment('Test comment');
+            await createPRComment('token', 'Test comment');
 
             expect(mockCreateComment).toHaveBeenCalledWith({
                 owner: 'test-owner',
@@ -47,7 +45,6 @@ describe('GitHub Action Tests', () => {
         });
 
         it('should do nothing when token is missing', async () => {
-            process.env.GITHUB_TOKEN = '';
             const mockCreateComment = jest.fn();
             getOctokit.mockReturnValue({
                 rest: {
@@ -57,7 +54,7 @@ describe('GitHub Action Tests', () => {
                 }
             });
 
-            await createPRComment('Test comment');
+            await createPRComment('', 'Test comment');
 
             expect(mockCreateComment).not.toHaveBeenCalled();
         });

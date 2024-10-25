@@ -12,10 +12,10 @@ export function createTestSummary(results) {
 
     // Create table header and row
     const tableHeader = [
-        { data: 'Total', header: true },
+        { data: 'Total Tests', header: true },
         { data: 'Passed', header: true },
         { data: 'Failed', header: true },
-        { data: 'Pending', header: true }
+        { data: 'Agent Needs More Input', header: true }
     ];
 
     const tableRow = [
@@ -32,13 +32,7 @@ export function createTestSummary(results) {
     core.summary
         .addHeading('🧪 Heal Test Results', 2)
         .addTable([tableHeader, tableRow])
-        .addHeading('Summary', 3)
-        .addRaw([
-            `- **Total Tests**: ${totalTests}`,
-            `- **Passed**: ✅ ${passedTests}`,
-            `- **Failed**: 🔴 ${failedTests}`,
-            `- **Agent Needs More Input**: 🟡 ${pendingTests}`
-        ].join('\n'))
+        .addHeading('Details', 3)
         .addRaw(testDetails)
         .write();
 
@@ -51,7 +45,7 @@ function generateTestDetails(runs) {
     // Handle failed tests
     const failedTests = runs.filter(run => run.result === 'FAIL');
     if (failedTests.length > 0) {
-        details += '\n### Failed Tests\n';
+        details += 'Failed Tests\n';
         details += failedTests
             .map(run => formatTestDetail('❌', run))
             .join('\n');
@@ -60,7 +54,7 @@ function generateTestDetails(runs) {
     // Handle pending tests
     const pendingTests = runs.filter(run => run.result === 'CRASH');
     if (pendingTests.length > 0) {
-        details += '\n### Tests Needing More Input\n';
+        details += 'Tests Needing More Input\n';
         details += pendingTests
             .map(run => formatTestDetail('⚠️', run))
             .join('\n');
@@ -69,7 +63,7 @@ function generateTestDetails(runs) {
     // Handle passed tests
     const passedTests = runs.filter(run => run.result === 'PASS');
     if (passedTests.length > 0) {
-        details += '\n### Passed Tests\n';
+        details += 'Passed Tests\n';
         details += passedTests
             .map(run => formatTestDetail('✅', run))
             .join('\n');
@@ -90,13 +84,13 @@ function formatTestDetail(emoji, run) {
 }
 
 
-export async function createPRComment(body) {
-    const githubToken = context.token;;
-    console.log('GITHUB_TOKEN', githubToken);
+export async function createPRComment(githubToken, body) {
     if (!githubToken || !context.payload.pull_request) {
+        if (!githubToken) {
+            core.info('No github token provided');
+        }
         return;
     }
-    console.log('Creating PR comment...');
     const octokit = getOctokit(githubToken);
     await octokit.rest.issues.createComment({
         ...context.repo,
@@ -154,6 +148,7 @@ export async function run() {
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
         const commentOnPr = core.getInput('comment-on-pr') || 'yes';
+        const githubToken = core.getInput('github-token');
 
         // Parse and validate payload
         let payload;
@@ -244,8 +239,8 @@ export async function run() {
                     if (commentOnPr === 'yes' || commentOnPr === 'true') {
                         try {
                             const comment = formatTestResults(report, `${url}?executionId=${executionId}`);
-                            await createPRComment(comment);
-                            core.info('Posted test results to PR');
+                            await createPRComment(githubToken, comment);
+                            core.info('Posted test results to PR comment.');
                             createTestSummary(report);
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
