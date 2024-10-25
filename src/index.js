@@ -92,10 +92,11 @@ function formatTestDetail(emoji, run) {
 
 export async function createPRComment(body) {
     const githubToken = process.env.GITHUB_TOKEN;
+    console.log('GITHUB_TOKEN', githubToken);
     if (!githubToken || !context.payload.pull_request) {
         return;
     }
-
+    console.log('Creating PR comment...');
     const octokit = getOctokit(githubToken);
     await octokit.rest.issues.createComment({
         ...context.repo,
@@ -245,6 +246,7 @@ export async function run() {
                             const comment = formatTestResults(report, `${url}?executionId=${executionId}`);
                             await createPRComment(comment);
                             core.info('Posted test results to PR');
+                            createTestSummary(report);
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
                         }
