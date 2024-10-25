@@ -31,21 +31,18 @@ export async function createTestSummary(results, url) {
 
 
     if (failedTests.length > 0) {
-        core.info('Failed Tests');
         core.summary.addHeading('Failed Tests', 4);
         failedTests.forEach(run => {
-            core.info(`Run ${run.id} - status: ${run.status}, result: ${run.result}`);
-            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
+            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link).addEOL();
         });
     }
     if (pendingTests.length > 0) {
-        core.info('Pending Tests');
         core.summary.addHeading('Tests Needing More Input', 4);
         pendingTests.forEach(run => {
-            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link);
+            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link).addEOL();
         });
     }
-    core.summary.addLink('View All Details', url);
+    core.summary.addLink('View All Details', url).addEOL();
     await core.summary.write();
     return '';
 }
@@ -208,7 +205,7 @@ export async function run() {
                             await createPRComment(githubToken, comment);
                             core.info('Posted test results to PR comment.');
                             await createTestSummary(report, url);
-                            core.info('Created test summary.');
+                            core.info('Posted test summary to summary section.');
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
                         }
