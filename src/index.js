@@ -28,8 +28,10 @@ export async function createTestSummary(results) {
     core.summary
         .addHeading('🧪 Heal Test Results', 2)
         .addTable([tableHeader, tableRow]);
+    core.summary.addHeading('Test Results', 3);
 
     if (failedTests.length > 0) {
+        console.log('Failed Tests');
         core.summary.addHeading('Failed Tests', 4);
         failedTests.forEach(run => {
             core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
@@ -37,6 +39,7 @@ export async function createTestSummary(results) {
     }
 
     if (pendingTests.length > 0) {
+        console.log('Pending Tests');
         core.summary.addHeading('Tests Needing More Input', 4);
         pendingTests.forEach(run => {
             core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link);
