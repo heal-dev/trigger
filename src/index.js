@@ -27,7 +27,7 @@ export async function createTestSummary(results) {
 
     core.summary
         .addHeading('🧪 Heal Test Results', 2)
-        .addTable([tableHeader, tableRow])
+        .addTable([tableHeader, tableRow]);
 
     if (failedTests.length > 0) {
         core.summary.addHeading('Failed Tests', 4);
