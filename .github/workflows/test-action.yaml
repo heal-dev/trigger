@@ -1,10 +1,10 @@
 name: Test Action
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
   pull_request:
     branches:
-      - main  
+      - main
 
 jobs:
   test:
@@ -24,11 +24,10 @@ jobs:
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
-          suite-id: '455'
-          wait-for-results: 'yes'
-          domain: 'https://api-staging.heal.dev'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: 'yes'
+          suite-id: "455"
+          wait-for-results: "yes"
+          domain: "https://api-staging.heal.dev"
+          comment-on-pr: "yes"
 
       - name: Assert Result
         run: |
