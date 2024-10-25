@@ -21,6 +21,8 @@ describe('GitHub Action Tests', () => {
     describe('createPRComment', () => {
         it('should create a PR comment successfully', async () => {
 
+            process.env.GITHUB_TOKEN = 'test-github-token';
+
             context.payload = { pull_request: { number: 123 } };
             context.repo = { owner: 'test-owner', repo: 'test-repo' };
 
@@ -34,7 +36,7 @@ describe('GitHub Action Tests', () => {
                 }
             });
 
-            await createPRComment('fake-token', 'Test comment');
+            await createPRComment('Test comment');
 
             expect(mockCreateComment).toHaveBeenCalledWith({
                 owner: 'test-owner',
@@ -45,6 +47,7 @@ describe('GitHub Action Tests', () => {
         });
 
         it('should do nothing when token is missing', async () => {
+            process.env.GITHUB_TOKEN = '';
             const mockCreateComment = jest.fn();
             getOctokit.mockReturnValue({
                 rest: {
@@ -54,7 +57,7 @@ describe('GitHub Action Tests', () => {
                 }
             });
 
-            await createPRComment(null, 'Test comment');
+            await createPRComment('Test comment');
 
             expect(mockCreateComment).not.toHaveBeenCalled();
         });
@@ -80,20 +83,20 @@ describe('GitHub Action Tests', () => {
         it('should format test results correctly', () => {
             const mockResults = {
                 runs: [
-                    { result: 'PASS' },
-                    { result: 'FAIL' },
-                    { result: 'PASS' },
-                    { result: 'CRASH' }
+                    { result: 'PASS', id: 1, link: 'https://example.com/run/1' },
+                    { result: 'FAIL', id: 2, link: 'https://example.com/run/2' },
+                    { result: 'PASS', id: 3, link: 'https://example.com/run/3' },
+                    { result: 'CRASH', id: 4, link: 'https://example.com/run/4' }
                 ]
             };
             const url = 'https://example.com/test';
 
             const formatted = formatTestResults(mockResults, url);
 
-            expect(formatted).toContain('Total Tests: 4');
-            expect(formatted).toContain('Passed: ✅ 2');
-            expect(formatted).toContain('Failed: 🔴 1');
-            expect(formatted).toContain('Agent Needs Input: 🟡 1');
+            expect(formatted).toContain('**Total Tests**: 4');
+            expect(formatted).toContain('**Passed**: ✅ 2');
+            expect(formatted).toContain('**Failed**: 🔴 1');
+            expect(formatted).toContain('**Agent Needs More Input**: 🟡 1');
             expect(formatted).toContain(url);
         });
 
@@ -103,10 +106,10 @@ describe('GitHub Action Tests', () => {
 
             const formatted = formatTestResults(mockResults, url);
 
-            expect(formatted).toContain('Total Tests: 0');
-            expect(formatted).toContain('Passed: ✅ 0');
-            expect(formatted).toContain('Failed: 🔴 0');
-            expect(formatted).toContain('Agent Needs Input: 🟡 0');
+            expect(formatted).toContain('**Total Tests**: 0');
+            expect(formatted).toContain('**Passed**: ✅ 0');
+            expect(formatted).toContain('**Failed**: 🔴 0');
+            expect(formatted).toContain('**Agent Needs More Input**: 🟡 0');
         });
     });
 

@@ -22,7 +22,7 @@ To use the **Heal Trigger Action** in your GitHub workflow, include the followin
         ]
       }
     wait-for-results: 'yes'                     # Optional: Wait for results (default: 'yes').
-    domain: 'https://api.heal.dev'     # Optional
+    domain: 'https://api.heal.dev'              # Optional
     comment-on-pr: 'yes'                        # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
@@ -72,8 +72,7 @@ jobs:
               ]
             }
           wait-for-results: 'yes'                     # Optional: Wait for results (default: 'yes').
-          domain: 'https://api-staging.heal.dev'     # Optional
-          github-token: ${{ secrets.GITHUB_TOKEN }}   # Optional: GitHub token for commenting on PRs.
+          domain: 'https://api.heal.dev'              # Optional
           comment-on-pr: 'yes'                        # Optional: Whether to comment test results on PRs (default: 'no').
 
 ```

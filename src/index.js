@@ -1,9 +1,97 @@
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 
-const githubToken = process.env.GITHUB_TOKEN;
+export function createTestSummary(results) {
+    const { runs } = results;
+
+    // Calculate statistics
+    const totalTests = runs.length;
+    const passedTests = runs.filter(run => run.result === 'PASS').length;
+    const failedTests = runs.filter(run => run.result === 'FAIL').length;
+    const pendingTests = totalTests - passedTests - failedTests;
+
+    // Create table header and row
+    const tableHeader = [
+        { data: 'Total', header: true },
+        { data: 'Passed', header: true },
+        { data: 'Failed', header: true },
+        { data: 'Pending', header: true }
+    ];
+
+    const tableRow = [
+        `${totalTests}`,
+        `${passedTests}`,
+        `${failedTests}`,
+        `${pendingTests}`
+    ];
+
+    // Generate detailed test results
+    const testDetails = generateTestDetails(runs);
+
+    // Build and write summary
+    core.summary
+        .addHeading('🧪 Heal Test Results', 2)
+        .addTable([tableHeader, tableRow])
+        .addHeading('Summary', 3)
+        .addRaw([
+            `- **Total Tests**: ${totalTests}`,
+            `- **Passed**: ✅ ${passedTests}`,
+            `- **Failed**: 🔴 ${failedTests}`,
+            `- **Agent Needs More Input**: 🟡 ${pendingTests}`
+        ].join('\n'))
+        .addRaw(testDetails)
+        .write();
+
+    return '';
+}
+
+function generateTestDetails(runs) {
+    let details = '';
+
+    // Handle failed tests
+    const failedTests = runs.filter(run => run.result === 'FAIL');
+    if (failedTests.length > 0) {
+        details += '\n### Failed Tests\n';
+        details += failedTests
+            .map(run => formatTestDetail('❌', run))
+            .join('\n');
+    }
+
+    // Handle pending tests
+    const pendingTests = runs.filter(run => run.result === 'CRASH');
+    if (pendingTests.length > 0) {
+        details += '\n### Tests Needing More Input\n';
+        details += pendingTests
+            .map(run => formatTestDetail('⚠️', run))
+            .join('\n');
+    }
+
+    // Handle passed tests
+    const passedTests = runs.filter(run => run.result === 'PASS');
+    if (passedTests.length > 0) {
+        details += '\n### Passed Tests\n';
+        details += passedTests
+            .map(run => formatTestDetail('✅', run))
+            .join('\n');
+    }
+
+    return details;
+}
+
+function formatTestDetail(emoji, run) {
+    return `<details>
+    <summary>${emoji} Run ${run.id}</summary>
+    <blockquote>
+      <p><strong>Status:</strong> ${run.result}</p>
+      <p><strong>Details:</strong> <a href="${run.link}">View Results</a></p>
+      ${run.error ? `<p><strong>Error:</strong> ${run.error}</p>` : ''}
+    </blockquote>
+  </details>`;
+}
+
 
 export async function createPRComment(body) {
+    const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken || !context.payload.pull_request) {
         return;
     }
@@ -34,7 +122,7 @@ export function formatTestResults(results, url) {
     if (failedTests > 0) {
         comment += `### Failed Tests\n`;
         for (const run of runs) {
-            if (run.result !== 'PASS') {
+            if (run.result === 'FAIL') {
                 comment += `- **Run ${run.id}**: [View Details](${run.link})\n`;
             }
         }
