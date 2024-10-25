@@ -25,58 +25,35 @@ export function createTestSummary(results) {
         `${pendingTests}`
     ];
 
-    // Generate detailed test results
-    const testDetails = generateTestDetails(runs);
-
-    // Build and write summary
-    core.summary
+    let summary = core.summary
         .addHeading('🧪 Heal Test Results', 2)
-        .addTable([tableHeader, tableRow])
-        .addHeading('Details', 3)
-        .addRaw(testDetails)
-        .write();
+        .addTable([tableHeader, tableRow]);
 
+    if (failedTests.length > 0) {
+        summary = summary.addHeading('Failed Tests', 4);
+        failedTests.forEach(run => {
+            summary = summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+        });
+    }
+
+    if (pendingTests.length > 0) {
+        summary = summary.addHeading('Tests Needing More Input', 4);
+        pendingTests.forEach(run => {
+            summary = summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+        });
+    }
+
+    if (passedTests.length > 0) {
+        summary = summary.addHeading('Passed Tests', 4);
+        passedTests.forEach(run => {
+            summary = summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+        });
+    }
+
+    // Write the summary
+    summary.write();
     return '';
 }
-
-function generateTestDetails(runs) {
-    let details = '';
-
-    // Handle failed tests
-    const failedTests = runs.filter(run => run.result === 'FAIL');
-    if (failedTests.length > 0) {
-        details += 'Failed Tests\n';
-        details += failedTests
-            .map(run => formatTestDetail('❌', run))
-            .join('\n');
-    }
-
-    // Handle pending tests
-    const pendingTests = runs.filter(run => run.result === 'CRASH');
-    if (pendingTests.length > 0) {
-        details += 'Tests Needing More Input\n';
-        details += pendingTests
-            .map(run => formatTestDetail('⚠️', run))
-            .join('\n');
-    }
-
-    // Handle passed tests
-    const passedTests = runs.filter(run => run.result === 'PASS');
-    if (passedTests.length > 0) {
-        details += 'Passed Tests\n';
-        details += passedTests
-            .map(run => formatTestDetail('✅', run))
-            .join('\n');
-    }
-
-    return details;
-}
-
-function formatTestDetail(emoji, run) {
-    return `${emoji} Run ${run.id} [View Results](${run.url})`;
-    ;
-}
-
 
 export async function createPRComment(githubToken, body) {
     if (!githubToken || !context.payload.pull_request) {
