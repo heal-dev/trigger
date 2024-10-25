@@ -1,14 +1,14 @@
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 
-export async function createTestSummary(results) {
+export async function createTestSummary(results, url) {
     const { runs } = results;
 
     // Calculate statistics
     const totalTests = runs.length;
-    const passedTests = runs.filter(run => run.result === 'PASS').length;
-    const failedTests = runs.filter(run => run.result === 'FAIL').length;
-    const pendingTests = totalTests - passedTests - failedTests;
+    const passedTests = runs.filter(run => run.result === 'PASS');
+    const failedTests = runs.filter(run => run.result === 'FAIL');
+    const pendingTests = runs.filter(run => run.result === 'CRASH');
 
     // Create table header and row
     const tableHeader = [
@@ -20,40 +20,32 @@ export async function createTestSummary(results) {
 
     const tableRow = [
         `${totalTests}`,
-        `${passedTests}`,
-        `${failedTests}`,
-        `${pendingTests}`
+        `${passedTests.length}`,
+        `${failedTests.length}`,
+        `${pendingTests.length}`
     ];
 
     core.summary
         .addHeading('🧪 Heal Test Results', 2)
         .addTable([tableHeader, tableRow]);
-    core.summary.addHeading('Test Results', 3);
 
 
-    console.log('Failed Tests');
-    core.info('Failed Tests');
-    core.summary.addHeading('Failed Tests', 4);
-    failedTests.forEach(run => {
-        core.info(`22222Run ${run.id} - status: ${run.status}, result: ${run.result}`);
-        core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
-    });
-
-
-
-    console.log('Pending Tests');
-    core.summary.addHeading('Tests Needing More Input', 4);
-    pendingTests.forEach(run => {
-        core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link);
-    });
-
-
-    core.summary.addHeading('Passed Tests', 4);
-    passedTests.forEach(run => {
-        core.summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link);
-    });
-
-
+    if (failedTests.length > 0) {
+        core.info('Failed Tests');
+        core.summary.addHeading('Failed Tests', 4);
+        failedTests.forEach(run => {
+            core.info(`Run ${run.id} - status: ${run.status}, result: ${run.result}`);
+            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
+        });
+    }
+    if (pendingTests.length > 0) {
+        core.info('Pending Tests');
+        core.summary.addHeading('Tests Needing More Input', 4);
+        pendingTests.forEach(run => {
+            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link);
+        });
+    }
+    core.summary.addLink('View All Details', url);
     await core.summary.write();
     return '';
 }
@@ -212,10 +204,10 @@ export async function run() {
                     // Post comment to PR if requested
                     if (commentOnPr === 'yes' || commentOnPr === 'true') {
                         try {
-                            const comment = formatTestResults(report, `${url}?executionId=${executionId}`);
+                            const comment = formatTestResults(report, url);
                             await createPRComment(githubToken, comment);
                             core.info('Posted test results to PR comment.');
-                            await createTestSummary(report);
+                            await createTestSummary(report, url);
                             core.info('Created test summary.');
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
