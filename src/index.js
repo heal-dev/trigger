@@ -73,14 +73,10 @@ function generateTestDetails(runs) {
 }
 
 function formatTestDetail(emoji, run) {
-    return `<details>
-    <summary>${emoji} Run ${run.id}</summary>
-    <blockquote>
-      <p><strong>Status:</strong> ${run.result}</p>
-      <p><strong>Details:</strong> <a href="${run.link}">View Results</a></p>
+    return `
+    <summary>${emoji} Run ${run.id} <a href="${run.link}">View Results</a></p> </summary>
       ${run.error ? `<p><strong>Error:</strong> ${run.error}</p>` : ''}
-    </blockquote>
-  </details>`;
+  `;
 }
 
 
