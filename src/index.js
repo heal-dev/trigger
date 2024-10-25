@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 
-export function createTestSummary(results) {
+export async function createTestSummary(results) {
     const { runs } = results;
 
     // Calculate statistics
@@ -25,33 +25,32 @@ export function createTestSummary(results) {
         `${pendingTests}`
     ];
 
-    let summary = core.summary
+    core.summary
         .addHeading('🧪 Heal Test Results', 2)
-        .addTable([tableHeader, tableRow]);
+        .addTable([tableHeader, tableRow])
 
     if (failedTests.length > 0) {
-        summary = summary.addHeading('Failed Tests', 4);
+        core.summary.addHeading('Failed Tests', 4).write();
         failedTests.forEach(run => {
-            summary = summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link).addEOL();
         });
     }
 
     if (pendingTests.length > 0) {
-        summary = summary.addHeading('Tests Needing More Input', 4);
+        core.summary.addHeading('Tests Needing More Input', 4);
         pendingTests.forEach(run => {
-            summary = summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link).addEOL();
         });
     }
 
     if (passedTests.length > 0) {
-        summary = summary.addHeading('Passed Tests', 4);
+        core.summary.addHeading('Passed Tests', 4);
         passedTests.forEach(run => {
-            summary = summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link).addEOL();
         });
     }
 
-    // Write the summary
-    summary.write();
+    await core.summary.write();
     return '';
 }
 
@@ -212,7 +211,7 @@ export async function run() {
                             const comment = formatTestResults(report, `${url}?executionId=${executionId}`);
                             await createPRComment(githubToken, comment);
                             core.info('Posted test results to PR comment.');
-                            createTestSummary(report);
+                            await createTestSummary(report);
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
                         }
