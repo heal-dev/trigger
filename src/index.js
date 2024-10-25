@@ -1,12 +1,14 @@
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 
-export async function createPRComment(token, body) {
-    if (!token || !context.payload.pull_request) {
+const githubToken = process.env.GITHUB_TOKEN;
+
+export async function createPRComment(body) {
+    if (!githubToken || !context.payload.pull_request) {
         return;
     }
 
-    const octokit = getOctokit(token);
+    const octokit = getOctokit(githubToken);
     await octokit.rest.issues.createComment({
         ...context.repo,
         issue_number: context.payload.pull_request.number,
@@ -63,7 +65,6 @@ export async function run() {
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
         const commentOnPr = core.getInput('comment-on-pr') || 'yes';
-        const githubToken = core.getInput('github-token');
 
         // Parse and validate payload
         let payload;
@@ -154,7 +155,7 @@ export async function run() {
                     if (commentOnPr === 'yes' || commentOnPr === 'true') {
                         try {
                             const comment = formatTestResults(report, `${url}?executionId=${executionId}`);
-                            await createPRComment(githubToken, comment);
+                            await createPRComment(comment);
                             core.info('Posted test results to PR');
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);

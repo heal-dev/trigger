@@ -22,8 +22,7 @@ To use the **Heal Trigger Action** in your GitHub workflow, include the followin
         ]
       }
     wait-for-results: 'yes'                     # Optional: Wait for results (default: 'yes').
-    domain: 'https://api-staging.heal.dev'     # Optional
-    github-token: ${{ secrets.GITHUB_TOKEN }}   # Optional: GitHub token for commenting on PRs.
+    domain: 'https://api.heal.dev'     # Optional
     comment-on-pr: 'yes'                        # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
@@ -36,15 +35,8 @@ To use the **Heal Trigger Action** in your GitHub workflow, include the followin
 | `payload`          | ❌       | Optional. If empty, all stories under the suite will be run.|
 | `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).               |
 | `domain`           | ❌       | (default: `https://api.heal.dev`).                          |
-| `github-token`     | ❌       | GitHub token for PR comments (optional).                    |
 | `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).      |
 
-## Outputs
-
-| Output          | Description                           |
-|-----------------|---------------------------------------|
-| `execution-id`  | The ID of the execution started.      |
-| `execution-url` | The URL to view the execution.        |
 
 ## Example
 
