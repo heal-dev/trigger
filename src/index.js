@@ -30,23 +30,23 @@ export async function createTestSummary(results) {
         .addTable([tableHeader, tableRow])
 
     if (failedTests.length > 0) {
-        core.summary.addHeading('Failed Tests', 4).write();
+        core.summary.addHeading('Failed Tests', 4);
         failedTests.forEach(run => {
-            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
         });
     }
 
     if (pendingTests.length > 0) {
         core.summary.addHeading('Tests Needing More Input', 4);
         pendingTests.forEach(run => {
-            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link);
         });
     }
 
     if (passedTests.length > 0) {
         core.summary.addHeading('Passed Tests', 4);
         passedTests.forEach(run => {
-            core.summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`✅ Run ${run.id} `).addLink('View Results', run.link);
         });
     }
 
