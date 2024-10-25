@@ -72,8 +72,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``)}y.g
 `));let s=A.filter(o=>o.result==="PASS");return s.length>0&&(e+=`Passed Tests
 `,e+=s.map(o=>Ug("\u2705",o)).join(`
 `)),e}function Ug(A,e){return`
-    <summary>${A} Run ${e.id} <a href="${e.link}">View Results</a></p> </summary>
-      ${e.error?`<p><strong>Error:</strong> ${e.error}</p>`:""}
+    <p>${A} Run ${e.id} <a href="${e.link}">View Results</a></p>
   `}async function aG(A,e){if(!A||!vr.context.payload.pull_request){A||_.info("No github token provided");return}await(0,vr.getOctokit)(A).rest.issues.createComment({...vr.context.repo,issue_number:vr.context.payload.pull_request.number,body:e})}function cG(A,e){let{runs:t}=A,r=`## \u{1F9EA} Heal Test Results
 
 `,s=t.length,o=t.filter(a=>a.result==="PASS").length,n=t.filter(a=>a.result==="FAIL").length,i=s-o-n;if(r+=`### Summary
