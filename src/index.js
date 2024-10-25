@@ -32,8 +32,10 @@ export async function createTestSummary(results) {
 
     if (failedTests.length > 0) {
         console.log('Failed Tests');
+        core.info('Failed Tests');
         core.summary.addHeading('Failed Tests', 4);
         failedTests.forEach(run => {
+            core.info(`22222Run ${run.id} - status: ${run.status}, result: ${run.result}`);
             core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link);
         });
     }
@@ -215,6 +217,7 @@ export async function run() {
                             await createPRComment(githubToken, comment);
                             core.info('Posted test results to PR comment.');
                             await createTestSummary(report);
+                            core.info('Created test summary.');
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
                         }
