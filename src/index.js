@@ -28,7 +28,7 @@ export function formatTestResults(results, url) {
     comment += `- Passed: ✅ ${passedTests}\n`;
     comment += `- Failed: 🔴 ${failedTests}\n`;
     comment += `- Agent Needs Input: 🟡 ${agentNeedsInput}\n\n`;
-    comment += `## View Details: ${url} \n`;
+    comment += `#### View Details: ${url} \n`;
     return comment;
 }
 
