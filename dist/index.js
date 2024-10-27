@@ -49,7 +49,8 @@ async function createTestSummary(results, url) {
             core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Result', run.link).addEOL();
         });
     }
-    core.summary.addEOL().addEOL().addLink('View All Details', url).addEOL();
+    core.summary.addRaw('----------------------------').addEOL();
+    core.summary.addLink('View All Details', url).addEOL();
     await core.summary.write();
     return '';
 }
