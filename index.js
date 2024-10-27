@@ -203,10 +203,10 @@ async function run() {
                     // Post comment to PR if requested
                     if (commentOnPr === 'yes' || commentOnPr === 'true') {
                         try {
-                            const comment = formatTestResults(report, url);
+                            const comment = formatTestResults(report, report.link);
                             await createPRComment(githubToken, comment);
                             core.info('Posted test results to PR comment.');
-                            await createTestSummary(report, url);
+                            await createTestSummary(report, report.link);
                             core.info('Posted test summary to summary section.');
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
@@ -216,7 +216,7 @@ async function run() {
                     if (allPassed) {
                         core.info('All runs passed.');
                     } else {
-                        core.setFailed(`One or more runs failed. Check details here: ${url}?executionId=${executionId}`);
+                        core.setFailed(`One or more runs failed. Check details here: ${report.link}`);
                     }
                 }
             }
