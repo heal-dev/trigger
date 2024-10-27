@@ -40,16 +40,16 @@ async function createTestSummary(results, url) {
     if (failedTests.length > 0) {
         core.summary.addHeading('Failed Tests', 4);
         failedTests.forEach(run => {
-            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`❌ Run ${run.id} `).addLink('View Result', run.link).addEOL();
         });
     }
     if (pendingTests.length > 0) {
         core.summary.addHeading('Tests Needing More Input', 4);
         pendingTests.forEach(run => {
-            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Results', run.link).addEOL();
+            core.summary.addRaw(`⚠️ Run ${run.id} `).addLink('View Result', run.link).addEOL();
         });
     }
-    core.summary.addBreak().addLink('View All Details', url).addEOL();
+    core.summary.addEOL().addEOL().addLink('View All Details', url).addEOL();
     await core.summary.write();
     return '';
 }
