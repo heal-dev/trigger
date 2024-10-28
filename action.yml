@@ -1,24 +1,34 @@
-name: 'Heal Trigger Action'
-description: 'Trigger a Heal suite execution and optionally wait for results'
+name: "Heal Trigger Action"
+description: "Trigger a Heal suite execution and optionally wait for results"
+author: "Heal.dev"
+
 inputs:
   api-token:
-    description: 'Heal API token'
+    description: "Heal API token"
     required: true
   suite-id:
-    description: 'Suite ID to trigger'
+    description: "Suite ID to trigger"
     required: true
   payload:
-    description: 'Optional payload in JSON format'
+    description: "Optional payload in JSON format"
     required: false
-    default: '{}'
+    default: "{}"
   wait-for-results:
-    description: 'Wait for the execution to finish (yes/no)'
+    description: "Wait for the execution to finish (yes/no)"
     required: false
-    default: 'yes'
+    default: "yes"
   domain:
-    description: 'Domain for Heal API (default: https://app.heal.dev)'
+    description: "Domain for Heal API (default: https://app.heal.dev)"
     required: false
-    default: 'https://app.heal.dev'
+    default: "https://app.heal.dev"
+  github-token:
+    description: The GitHub token used to post comments on pull requests
+    default: ${{ github.token }}
+  comment-on-pr:
+    description: "Whether to comment test results on PR (yes/no)"
+    required: false
+    default: "no"
+
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node20"
+  main: "dist/index.js"
