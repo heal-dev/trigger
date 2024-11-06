@@ -28,14 +28,14 @@ To use the **Heal Trigger Action** in your GitHub workflow, include the followin
 
 ## Inputs
 
-| Input              | Required | Description                                                 |
-|--------------------|----------|-------------------------------------------------------      |
-| `api-token`        | ✅       | Your Heal API token.                                        |
-| `suite-id`         | ✅       | The ID of the test suite.                                   |
-| `payload`          | ❌       | Optional. If empty, all stories under the suite will be run.|
-| `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).               |
-| `domain`           | ❌       | (default: `https://api.heal.dev`).                          |
-| `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).      |
+| Input              | Required | Description                                                                             |
+|--------------------|----------|-----------------------------------------------------------------------------------------|
+| `api-token`        | ✅       | Your Heal API token (you can create one [here](https://app.heal.dev/organisation/keys)) |
+| `suite-id`         | ✅       | The ID of the test suite.                                                               |
+| `payload`          | ❌       | Optional. If empty, all stories under the suite will be run.                            |
+| `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).                                           |
+| `domain`           | ❌       | (default: `https://api.heal.dev`).                                                      |
+| `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).                                  |
 
 
 ## Example
