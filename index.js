@@ -107,8 +107,17 @@ function formatTestResults(results, url) {
 async function run() {
     try {
         // Get inputs
-        const apiToken = core.getInput('api-token');
         const suiteId = core.getInput('suite-id');
+        const projectSlug = core.getInput('project-slug');
+        const suiteSlug = core.getInput('suite-slug');
+
+        if (suiteId && (projectSlug || suiteSlug)) {
+            throw new Error('Provide either "suite-id" or both "project-slug" and "suite-slug", but not both.');
+        }
+        if (!suiteId && !(projectSlug && suiteSlug)) {
+            throw new Error('You must provide either "suite-id" or both "project-slug" and "suite-slug".');
+        }
+        const apiToken = core.getInput('api-token');
         const payloadInput = core.getInput('payload');
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
@@ -125,7 +134,13 @@ async function run() {
         }
 
         // Construct trigger URL
-        const triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
+        let triggerUrl;
+        if (suiteId) {
+            triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
+        } else {
+            triggerUrl = `${domain}/api/projects/${projectSlug}/suites/${suiteSlug}/trigger`;
+        }
+
 
         core.info(`Triggering suite execution at ${triggerUrl}...`);
 

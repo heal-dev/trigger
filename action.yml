@@ -7,8 +7,14 @@ inputs:
     description: "Heal API token"
     required: true
   suite-id:
-    description: "Suite ID to trigger"
-    required: true
+    description: "Suite ID to trigger (for the current method)"
+    required: false
+  project-slug:
+    description: "Project slug (for the new method)"
+    required: false
+  suite-slug:
+    description: "Suite slug (for the new method)"
+    required: false
   payload:
     description: "Optional payload in JSON format"
     required: false
