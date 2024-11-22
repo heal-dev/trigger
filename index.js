@@ -136,25 +136,24 @@ async function run() {
         const [projectSlug, suiteSlug] = config['suite'].split('/');
         if (suiteId) {
             apiToken = core.getInput('api-token');
-            payloadInput = core.getInput('payload');
             waitForResults = core.getInput('wait-for-results') || 'yes';
             domain = core.getInput('domain') || 'https://api.heal.dev';
             commentOnPr = core.getInput('comment-on-pr') || 'no';
             githubToken = core.getInput('github-token');
         } else {
             apiToken = config['api-token'];
-            payloadInput = config['stories'];
             waitForResults = config['wait-for-results'] || 'yes';
             domain = config['domain'] || 'https://api.heal.dev';
             commentOnPr = config['comment-on-pr'] || 'no';
             githubToken = config['github-token'];
+
             core.info('payloadInput: ' + payloadInput);
         }
 
         // Parse and validate payload
         let payload;
         try {
-            payload = suiteId ? JSON.parse(core.getInput('payload') || '{}') : stories || {};
+            payload = suiteId ? JSON.parse(core.getInput('payload') || '{}') : config[stories] || {};
         } catch (error) {
             core.setFailed(`Invalid JSON payload: ${error.message}`);
             return;
