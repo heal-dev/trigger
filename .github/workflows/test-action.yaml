@@ -26,9 +26,7 @@ jobs:
           configuration: |
             api-token: ${{ secrets.HEAL_API_TOKEN }}
             suite: testcitriggers/heal-core-functions
-              variables:
-                - a:
-                    value: 1222
+              hello: world
             wait-for-results: "yes"
             domain: "https://api-staging.heal.dev"
             comment-on-pr: "yes"
