@@ -4,10 +4,11 @@ This GitHub Action triggers a test suite execution on Heal.dev directly from you
 
 ## Usage
 
-To use the **Heal Trigger Action** in your GitHub workflow, you can trigger a **test suite** using either **suite-id** or a combination of **project-slug** and **suite-slug**. Here’s how to configure it in your GitHub workflow YAML file:
+You can trigger a test suite execution using either **suite-id** or a **configuration YAML format**. Below are examples for both methods:
 
-1. Using suite-id
-   If you know the unique ID of the test suite, you can use the suite-id directly:
+### Option 1: Using suite-id
+
+If you know the unique ID of the test suite, you can trigger it directly using suite-id:
 
 ```yaml
 - name: Trigger Heal Suite Execution
@@ -22,8 +23,19 @@ To use the **Heal Trigger Action** in your GitHub workflow, you can trigger a **
     comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
-2. Using project-slug and suite-slug
-   If you prefer a more descriptive method, use the project-slug and suite-slug, which are unique, URL-friendly identifiers for the project and suite:
+## Inputs
+
+| Input              | Required | Description                                                                             |
+| ------------------ | -------- | --------------------------------------------------------------------------------------- |
+| `api-token`        | ✅       | Your Heal API token (you can create one [here](https://app.heal.dev/organisation/keys)) |
+| `suite-id`         | ✅       | (Alternative 1) The unique ID of the test suite.                                        |
+| `payload`          | ❌       | Optional. If empty, all stories under the suite will be run.                            |
+| `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).                                           |
+| `domain`           | ❌       | (default: `https://api.heal.dev`).                                                      |
+| `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).                                  |
+
+1. Using configuration
+   If you prefer a more control method, use the project-slug and suite-slug, which are unique, URL-friendly identifiers for the project and suite:
 
 ```yaml
 - name: Trigger Heal Suite Execution
@@ -39,7 +51,7 @@ To use the **Heal Trigger Action** in your GitHub workflow, you can trigger a **
     comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
-## Inputs
+### Inputs
 
 | Input              | Required | Description                                                                             |
 | ------------------ | -------- | --------------------------------------------------------------------------------------- |

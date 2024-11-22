@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const { context, getOctokit } = require('@actions/github');
+const yaml = require('js-yaml');
 
 
 async function createTestSummary(results, url) {
@@ -108,26 +109,52 @@ async function run() {
     try {
         // Get inputs
         const suiteId = core.getInput('suite-id');
-        const projectSlug = core.getInput('project-slug');
-        const suiteSlug = core.getInput('suite-slug');
+        const configuration = core.getInput('configuration');
 
-        if (suiteId && (projectSlug || suiteSlug)) {
-            throw new Error('Provide either "suite-id" or both "project-slug" and "suite-slug", but not both.');
+        if (suiteId && configuration) {
+            throw new Error('Provide either "suite-id" or "configuration", but not both.');
         }
-        if (!suiteId && !(projectSlug && suiteSlug)) {
-            throw new Error('You must provide either "suite-id" or both "project-slug" and "suite-slug".');
+        if (!suiteId && !configuration) {
+            throw new Error('You must provide either "suite-id" or "configuration".');
         }
-        const apiToken = core.getInput('api-token');
-        const payloadInput = core.getInput('payload');
-        const waitForResults = core.getInput('wait-for-results') || 'yes';
-        const domain = core.getInput('domain') || 'https://api.heal.dev';
-        const commentOnPr = core.getInput('comment-on-pr') || 'no';
-        const githubToken = core.getInput('github-token');
+
+        let config;
+        try {
+            config = yaml.load(core.getInput('configuration'));
+        } catch (error) {
+            core.setFailed(`Failed to parse YAML config: ${error.message}`);
+            return;
+        }
+        core.info(`Configuration: ${JSON.stringify(config)}`);
+
+        let apiToken;
+        let waitForResults;
+        let domain;
+        let commentOnPr;
+        let githubToken;
+
+        const [projectSlug, suiteSlug] = config['suite'].split('/');
+        if (suiteId) {
+            apiToken = core.getInput('api-token');
+            payloadInput = core.getInput('payload');
+            waitForResults = core.getInput('wait-for-results') || 'yes';
+            domain = core.getInput('domain') || 'https://api.heal.dev';
+            commentOnPr = core.getInput('comment-on-pr') || 'no';
+            githubToken = core.getInput('github-token');
+        } else {
+            apiToken = config['api-token'];
+            payloadInput = config['stories'];
+            waitForResults = config['wait-for-results'] || 'yes';
+            domain = config['domain'] || 'https://api.heal.dev';
+            commentOnPr = config['comment-on-pr'] || 'no';
+            githubToken = config['github-token'];
+            core.info('payloadInput: ' + payloadInput);
+        }
 
         // Parse and validate payload
         let payload;
         try {
-            payload = payloadInput ? JSON.parse(payloadInput) : {};
+            payload = suiteId ? JSON.parse(core.getInput('payload') || '{}') : stories || {};
         } catch (error) {
             core.setFailed(`Invalid JSON payload: ${error.message}`);
             return;
@@ -140,7 +167,6 @@ async function run() {
         } else {
             triggerUrl = `${domain}/api/projects/${projectSlug}/suites/${suiteSlug}/trigger`;
         }
-
 
         core.info(`Triggering suite execution at ${triggerUrl}...`);
 

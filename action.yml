@@ -5,15 +5,9 @@ author: "Heal.dev"
 inputs:
   api-token:
     description: "Heal API token"
-    required: true
+    required: false
   suite-id:
     description: "Suite ID to trigger (for the current method)"
-    required: false
-  project-slug:
-    description: "Project slug (for the new method)"
-    required: false
-  suite-slug:
-    description: "Suite slug (for the new method)"
     required: false
   payload:
     description: "Optional payload in JSON format"
@@ -34,6 +28,10 @@ inputs:
     description: "Whether to comment test results on PR (yes/no)"
     required: false
     default: "no"
+
+  configuration:
+    description: "Full configuration in YAML format (for the new method)"
+    required: false
 
 runs:
   using: "node20"
