@@ -141,7 +141,7 @@ async function run() {
         githubToken = core.getInput('github-token');
     } else {
         apiToken = config['api-token'];
-        payloadInput = config[stories] || [];
+        payloadInput = config['stories'] || [];
         waitForResults = config['wait-for-results'] || 'yes';
         domain = config['domain'] || 'https://api.heal.dev';
         commentOnPr = config['comment-on-pr'] || 'no';
