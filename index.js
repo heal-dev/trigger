@@ -129,23 +129,22 @@ async function run() {
     let waitForResults;
     let domain;
     let commentOnPr;
-    let githubToken;
+    const githubToken = core.getInput('github-token');
     let payloadInput;
 
     const [projectSlug, suiteSlug] = config['suite'].split('/');
+
     if (suiteId) {
         apiToken = core.getInput('api-token');
         waitForResults = core.getInput('wait-for-results') || 'yes';
         domain = core.getInput('domain') || 'https://api.heal.dev';
         commentOnPr = core.getInput('comment-on-pr') || 'no';
-        githubToken = core.getInput('github-token');
     } else {
         apiToken = config['api-token'];
         payloadInput = config['stories'] || [];
         waitForResults = config['wait-for-results'] || 'yes';
         domain = config['domain'] || 'https://api.heal.dev';
         commentOnPr = config['comment-on-pr'] || 'no';
-        githubToken = config['github-token'];
     }
     try {
         let payload;
