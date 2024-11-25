@@ -159,6 +159,8 @@ describe('GitHub Action Tests', () => {
 
         it('should handle invalid JSON payload', async () => {
             core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite';
+                if (name === 'configuration') return null;
                 if (name === 'payload') return 'invalid-json';
                 return 'test-value';
             });
@@ -167,5 +169,53 @@ describe('GitHub Action Tests', () => {
 
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON payload'));
         });
+        it('should throw an error when both "suite-id" nor "configuration" is provided', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite';
+                if (name === 'configuration') return 'suite: project/test';
+                return 'test-value';
+            });
+
+            await expect(run()).rejects.toThrow(
+                'Provide either "suite-id" or "configuration", but not both.'
+            );
+        });
+        it('should throw an error when neither "suite-id" nor "configuration" is provided', async () => {
+            core.getInput.mockImplementation(() => null);
+
+            await expect(run()).rejects.toThrow(
+                'You must provide either "suite-id" or "configuration".'
+            );
+        });
+
+        it('should parse YAML configuration and trigger execution', async () => {
+            core.getInput.mockImplementation(name => {
+                if (name === 'configuration') return 'suite: project/test';
+                if (name === 'suite-id') return null;
+                return 'test-value';
+            });
+
+            fetch.mockResolvedValueOnce({
+                ok: true,
+                json: jest.fn().mockResolvedValue({ executionId: 'abc123', url: mockUrl }),
+            });
+
+            await run();
+
+            expect(core.info).toHaveBeenCalledWith('Triggering suite execution at https://api.heal.dev/api/projects/project/suites/test/trigger...');
+            expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'abc123');
+            expect(core.setOutput).toHaveBeenCalledWith('execution-url', mockUrl);
+        }, 30000);
+
+        it('should handle trigger API failure', async () => {
+            core.getInput.mockImplementation(name => (name === 'suite-id' ? '123' : null));
+
+            fetch.mockResolvedValueOnce({ ok: false, status: 500 });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith('Action failed with error: HTTP error! status: 500');
+        });
+
     });
 });

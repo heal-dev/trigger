@@ -132,8 +132,6 @@ async function run() {
     const githubToken = core.getInput('github-token');
     let payloadInput;
 
-    const [projectSlug, suiteSlug] = config['suite'].split('/');
-
     if (suiteId) {
         apiToken = core.getInput('api-token');
         waitForResults = core.getInput('wait-for-results') || 'yes';
@@ -160,6 +158,7 @@ async function run() {
         if (suiteId) {
             triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
         } else {
+            const [projectSlug, suiteSlug] = config['suite'].split('/');
             triggerUrl = `${domain}/api/projects/${projectSlug}/suites/${suiteSlug}/trigger`;
         }
 
@@ -265,5 +264,7 @@ async function run() {
     }
 }
 
-run();
+if (require.main === module) {
+    run(); // Execute if the script is run directly
+}
 module.exports = { run, createTestSummary, createPRComment, formatTestResults };

@@ -20,7 +20,17 @@ jobs:
           node-version: 22
 
       - name: Run Action
-        id: my-action
+        id: my-action_old
+        uses: ./
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }}
+          suite-id: "455"
+          wait-for-results: "yes"
+          domain: "https://api-staging.heal.dev"
+          comment-on-pr: "yes"
+
+      - name: Run Action
+        id: my-action_new
         uses: ./
         with:
           configuration: |
