@@ -109,7 +109,7 @@ async function run() {
         // Get inputs
         const suiteId = core.getInput('suite-id');
         const suite = core.getInput('suite');
-        const { projectSlug, suiteSlug } = core.getInput('suite').split('/');
+        core.info(`suite: ${suite}`);
         const payload = core.getInput('payload');
         const stories = core.getInput('stories');
 
@@ -151,10 +151,11 @@ async function run() {
         }
 
         // Construct trigger URL
-        let triggerUrl;
+        let triggerUrl, projectSlug, suiteSlug;
         if (suiteId) {
             triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
         } else {
+            [projectSlug, suiteSlug] = suite.split('/');
             core.info(`Project: ${projectSlug}, Suite: ${suiteSlug}`);
             if (!projectSlug || !suiteSlug) {
                 core.setFailed('Invalid suite input. Please provide the suite in the format "project/suite".');
