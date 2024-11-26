@@ -6,13 +6,6 @@ inputs:
   api-token:
     description: "Heal API token"
     required: true
-  suite-id:
-    description: "Suite ID to trigger"
-    required: true
-  payload:
-    description: "Optional payload in JSON format"
-    required: false
-    default: "{}"
   wait-for-results:
     description: "Wait for the execution to finish (yes/no)"
     required: false
@@ -28,6 +21,21 @@ inputs:
     description: "Whether to comment test results on PR (yes/no)"
     required: false
     default: "no"
+  suite-id:
+    description: "Suite ID to trigger"
+    required: true
+  payload:
+    description: "Optional payload in JSON format"
+    required: false
+    default: "{}"
+  suite:
+    description: "Project slug name and Suitt Slug name separated by /, for example: my-project/my-suite"
+    required: false
+    default: ""
+  stories:
+    description: "List of story to run in JSON format"
+    required: false
+    default: "{}"
 
 runs:
   using: "node20"

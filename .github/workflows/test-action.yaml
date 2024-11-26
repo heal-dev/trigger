@@ -20,7 +20,7 @@ jobs:
           node-version: 22
 
       - name: Run Action
-        id: my-action
+        id: my-action_old
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
@@ -29,9 +29,25 @@ jobs:
           domain: "https://api-staging.heal.dev"
           comment-on-pr: "yes"
 
-      - name: Assert Result
-        run: |
-          if [[ "${{ steps.my-action.outputs.execution-id }}" == "" ]]; then
-            echo "Action failed to return an execution ID."
-            exit 1
-          fi
+      - name: Run Action
+        id: my-action_new
+        uses: ./
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }}
+          suite: testcitriggers/heal-core-functions
+          stories: |
+            {
+              [
+                {
+                  "slug": "create-a-block-then-cleanup",
+                  "test-config": {
+                    entrypoint: "https://api-staging.heal.dev",
+                    variables: {
+                      blockName: "Test block"
+                    }
+                }
+              ]
+            }
+          wait-for-results: "yes"
+          domain: "https://api-staging.heal.dev"
+          comment-on-pr: "yes"

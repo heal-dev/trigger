@@ -107,37 +107,66 @@ function formatTestResults(results, url) {
 async function run() {
     try {
         // Get inputs
-        const apiToken = core.getInput('api-token');
         const suiteId = core.getInput('suite-id');
-        const payloadInput = core.getInput('payload');
+        const suite = core.getInput('suite');
+        const { projectSlug, suiteSlug } = core.getInput('suite').split('/');
+        const payload = core.getInput('payload');
+        const stories = core.getInput('stories');
+
+        if (suiteId && suite) {
+            core.setFailed('Please provide either suite-id or suite, not both.');
+            return;
+        }
+
+        if (suiteId && stories) {
+            core.setFailed('When "suite-id" is provided, "payload" should come from "payload", not "stories".');
+            return;
+        }
+
+        if (suite && payload) {
+            core.setFailed('When "suite" is provided, "payload" should come from "stories", not "payload".');
+            return;
+        }
+
+        const apiToken = core.getInput('api-token');
+        const payloadInput = suiteId ? core.getInput('payload') : core.getInput('stories');
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
         const commentOnPr = core.getInput('comment-on-pr') || 'no';
         const githubToken = core.getInput('github-token');
 
         // Parse and validate payload
-        let payload;
+        let validatedPayload;
         try {
-            payload = payloadInput ? JSON.parse(payloadInput) : {};
+            validatedPayload = payloadInput ? JSON.parse(payloadInput) : {};
         } catch (error) {
             core.setFailed(`Invalid JSON payload: ${error.message}`);
             return;
         }
 
         // Construct trigger URL
-        const triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
+        let triggerUrl;
+        if (suiteId) {
+            triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
+        } else {
+            if (!projectSlug || !suiteSlug) {
+                core.setFailed('Invalid suite input. Please provide the suite in the format "project/suite".');
+                return;
+            }
+            triggerUrl = `${domain}/api/projects/${projectSlug}/suites/${suiteSlug}/trigger`;
+        }
 
         core.info(`Triggering suite execution at ${triggerUrl}...`);
 
         // Trigger the suite execution
-        core.debug(`POST ${triggerUrl} with payload: ${JSON.stringify(payload)}`);
+        core.debug(`POST ${triggerUrl} with payload: ${JSON.stringify(validatedPayload)}`);
         const triggerResponse = await fetch(triggerUrl, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(validatedPayload)
         });
 
         if (!triggerResponse.ok) {
