@@ -125,11 +125,13 @@ async function run() {
         }
 
         if (suiteId && stories) {
+            core.info(`Ignoring: ${stories}: ${suiteId} is provided.`);
             core.setFailed('When "suite-id" is provided, "payload" should come from "payload", not "stories".');
             return;
         }
 
         if (suite && payload) {
+            core.info(`Ignoring: ${payload}: ${suite} is provided.`);
             core.setFailed('When "suite" is provided, "payload" should come from "stories", not "payload".');
             return;
         }
