@@ -34,7 +34,7 @@ jobs:
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
-          suite: testcitriggers/heal-core-functions
+          suite: "testcitriggers/heal-core-functions"
           stories: |
             [
               {

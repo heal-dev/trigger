@@ -147,6 +147,10 @@ async function run() {
         let validatedPayload;
         try {
             validatedPayload = payloadInput ? JSON.parse(payloadInput) : {};
+            core.info(`Payload: ${JSON.stringify(validatedPayload)}`);
+            if (Array.isArray(validatedPayload)) {
+                validatedPayload = { stories: validatedPayload };
+            }
         } catch (error) {
             core.setFailed(`Invalid JSON payload: ${error.message}`);
             return;
