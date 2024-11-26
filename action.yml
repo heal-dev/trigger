@@ -23,7 +23,7 @@ inputs:
     default: "no"
   suite-id:
     description: "Suite ID to trigger"
-    required: true
+    required: false
   payload:
     description: "Optional payload in JSON format"
     required: false
