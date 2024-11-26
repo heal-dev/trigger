@@ -36,22 +36,17 @@ jobs:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
           suite: testcitriggers/heal-core-functions
           stories: |
-            {
-              [
-                {
-                  "slug": "create-a-block-then-cleanup",
-                  "test-config": 
-                    {
-                      entrypoint: "https://api-staging.heal.dev",
-                      variables: 
-                        {
-                          blockName: "Test block"
-                        }
-
-                    }
+            [
+              {
+                "slug": "create-a-block-then-cleanup",
+                "test-config": {
+                  "entrypoint": "https://api-staging.heal.dev",
+                  "variables": {
+                    "blockName": "Test block"
+                  }
                 }
-              ]
-            }
+              }
+            ]
           wait-for-results: "yes"
           domain: "https://api-staging.heal.dev"
           comment-on-pr: "yes"
