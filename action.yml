@@ -27,7 +27,6 @@ inputs:
   payload:
     description: "Optional payload in JSON format"
     required: false
-    default: "{}"
   suite:
     description: "Project slug name and Suitt Slug name separated by /, for example: my-project/my-suite"
     required: false
@@ -35,7 +34,6 @@ inputs:
   stories:
     description: "List of story to run in JSON format"
     required: false
-    default: "{}"
 
 runs:
   using: "node20"
