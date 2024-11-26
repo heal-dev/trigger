@@ -151,6 +151,7 @@ async function run() {
         if (suiteId) {
             triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
         } else {
+            core.info(`Project: ${projectSlug}, Suite: ${suiteSlug}`);
             if (!projectSlug || !suiteSlug) {
                 core.setFailed('Invalid suite input. Please provide the suite in the format "project/suite".');
                 return;
