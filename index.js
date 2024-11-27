@@ -206,13 +206,13 @@ async function run() {
             const inputStories = core.getInput('stories');
 
             if (suiteId && inputPayload) {
-                validatedStories = JSON.parse(inputPayload);
-                validateInput('payload', validatedStories);
+                validatedPayload = JSON.parse(inputPayload);
+                validateInput('payload', validatedPayload);
             } else if (inputStories && suite) {
-                validatedStories = { stories: JSON.parse(inputStories) };
-                validateInput('stories', validatedStories.stories);
+                validatedPayload = { stories: JSON.parse(inputStories) };
+                validateInput('stories', validatedPayload.stories);
             } else {
-                validatedStories = suiteId ? {} : { stories: [] };
+                validatedPayload = suiteId ? {} : { stories: [] };
             }
 
         } catch (error) {
