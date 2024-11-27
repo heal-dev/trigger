@@ -109,20 +109,6 @@ describe('GitHub Action Tests', () => {
 
     describe('run', () => {
         beforeEach(() => {
-            // Mock core.getInput for different inputs
-            core.getInput = jest.fn().mockImplementation((name) => {
-                const inputs = {
-                    'api-token': 'test-token',
-                    'suite-id': 'test-suite',
-                    'payload': '{}',
-                    'wait-for-results': 'yes',
-                    'domain': 'https://api.test.com',
-                    'comment-on-pr': 'yes',
-                    'github-token': 'github-token'
-                };
-                return inputs[name];
-            });
-
             // Mock fetch globally
             global.fetch = jest.fn().mockImplementation((url) => {
                 if (url.includes('/trigger')) {
@@ -140,8 +126,75 @@ describe('GitHub Action Tests', () => {
                 });
             });
         });
+        it('should handle send suite-id and suite at the same time', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                return 'test-value';
+            });
 
-        it('should execute the full workflow successfully', async () => {
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Please provide either suite-id or suite, not both.'));
+        });
+
+        it('should handle invalid suite id and invalid suite', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Please provide either suite-id or suite.'));
+        });
+
+        it('should handle invalid suite input (incorrect format)', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'invalid-suite-input';
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid suite input. Please provide the suite in the format "project/suite".'));
+        });
+
+        it('should handle suite-id with stories instead of payload', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'stories') return 'some-story';
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite-id" is provided, "stories" should come from "payload", not "stories".'));
+        });
+
+        it('should handle suite with payload instead of stories', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test-suite';
+                if (name === 'payload') return '{}';
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite" is provided, "stories" should come from "stories", not "payload".'));
+        });
+
+        it('should execute the full workflow successfully - suite Id', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                const inputs = {
+                    'api-token': 'test-token',
+                    'suite-id': 'test-suite',
+                    'payload': '{}',
+                    'wait-for-results': 'yes',
+                    'domain': 'https://api.test.com',
+                    'comment-on-pr': 'yes',
+                    'github-token': 'github-token'
+                };
+                return inputs[name];
+            });
+
             await run();
 
             expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'test-execution');
@@ -160,12 +213,27 @@ describe('GitHub Action Tests', () => {
         it('should handle invalid JSON payload', async () => {
             core.getInput = jest.fn().mockImplementation((name) => {
                 if (name === 'payload') return 'invalid-json';
-                return 'test-value';
+                if (name === 'suite-id') return 'test-suite';
+                return null;
             });
 
             await run();
 
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON payload'));
         });
+
+        it('should execute the full workflow successfully - suite', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'stories') return JSON.stringify([{ storySlug: 'hello' }]);
+                if (name === 'suite') return 'test/test-suite';
+                return null;
+            });
+
+            await run();
+
+            expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'test-execution');
+            expect(core.setOutput).toHaveBeenCalledWith('execution-url', 'http://test.com/execution');
+            expect(global.fetch).toHaveBeenCalledTimes(2); // One for trigger, one for status
+        }, 10000);
     });
 });

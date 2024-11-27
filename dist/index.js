@@ -115,7 +115,6 @@ async function run() {
         // Get inputs
         const suiteId = core.getInput('suite-id');
         const suite = core.getInput('suite');
-        core.info(`suite: ${suite}`);
         const payload = core.getInput('payload');
         const stories = core.getInput('stories');
 
@@ -123,16 +122,18 @@ async function run() {
             core.setFailed('Please provide either suite-id or suite, not both.');
             return;
         }
+        if (!suiteId && !suite) {
+            core.setFailed('Please provide either suite-id or suite.');
+            return;
+        }
 
         if (suiteId && stories) {
-            core.info(`Ignoring: ${stories}: ${suiteId} is provided.`);
-            core.setFailed('When "suite-id" is provided, "payload" should come from "payload", not "stories".');
+            core.setFailed('When "suite-id" is provided, "stories" should come from "payload", not "stories".');
             return;
         }
 
         if (suite && payload) {
-            core.info(`Ignoring: ${payload}: ${suite} is provided.`);
-            core.setFailed('When "suite" is provided, "payload" should come from "stories", not "payload".');
+            core.setFailed('When "suite" is provided, "stories" should come from "stories", not "payload".');
             return;
         }
 
@@ -147,7 +148,7 @@ async function run() {
         let validatedPayload;
         try {
             validatedPayload = payloadInput ? JSON.parse(payloadInput) : {};
-            core.info(`Payload: ${JSON.stringify(validatedPayload)}`);
+            core.info(`Stories: ${JSON.stringify(validatedPayload)}`);
             if (Array.isArray(validatedPayload)) {
                 validatedPayload = { stories: validatedPayload };
             }
@@ -162,7 +163,6 @@ async function run() {
             triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
         } else {
             [projectSlug, suiteSlug] = suite.split('/');
-            core.info(`Project: ${projectSlug}, Suite: ${suiteSlug}`);
             if (!projectSlug || !suiteSlug) {
                 core.setFailed('Invalid suite input. Please provide the suite in the format "project/suite".');
                 return;

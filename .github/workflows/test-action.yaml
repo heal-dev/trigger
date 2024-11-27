@@ -40,7 +40,7 @@ jobs:
               {
                 "slug": "create-a-block-then-cleanup",
                 "test-config": {
-                  "entrypoint": "https://api-staging.heal.dev",
+                  "entrypoint": "https://app-staging.heal.dev",
                   "variables": {
                     "blockName": "Test block"
                   }
