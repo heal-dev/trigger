@@ -46,7 +46,45 @@ jobs:
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
-          suite-id: "455"
+          suite-id: "443"
+          payload: |
+            {
+              "stories": [
+                {
+                  "id": 5053,
+                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"
+                },
+                {
+                  "id": 5497,
+                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"
+                },
+                {
+                  "id": 5567,
+                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
+                   "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                },
+                {
+                  "id": 5566,
+                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
+                   "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                },
+                {
+                  "id": 5565,
+                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
+                  "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                },
+                {
+                  "id": 5567,
+                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
+                  "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                },
+                {
+                  "id": 5592,
+                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
+                  "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                }
+              ]
+            }
           wait-for-results: "yes"
           domain: "https://api-staging.heal.dev"
           comment-on-pr: "yes"
