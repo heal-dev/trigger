@@ -195,16 +195,24 @@ async function run() {
         const commentOnPr = core.getInput('comment-on-pr') || 'no';
         const githubToken = core.getInput('github-token');
 
-        // Parse and validate payload
+        /**
+        * @type {{ stories: { id: number, entryHref: string, variables?: Record<string, string> }[]} ||
+        * { stories: { slug: string, "test-config"?: { entrypoint?: string, variables?: Record<string, string> } }[] }}
+        */
         let validatedPayload;
         try {
-            /**
-            * @type {{ stories: { id: number, entryHref: string, variables?: Record<string, string> }[]} ||
-            * { stories: { slug: string, "test-config"?: { entrypoint?: string, variables?: Record<string, string> } }[] }}
-            */
-            validatedStories = suiteId ? JSON.parse(core.getInput('payload'))
-                : { stories: JSON.parse(core.getInput('stories')) };
-            suiteId ? validateInput('payload', validatedStories) : validateInput('stories', validatedStories);
+
+            const inputPayload = core.getInput('payload');
+            const inputStories = core.getInput('stories');
+
+            if (suiteId && inputPayload) {
+                validatedStories = JSON.parse(inputPayload);
+                validateInput('payload', validatedStories);
+            } else if (inputStories && suite) {
+                validatedStories = { stories: JSON.parse(inputStories) };
+                validateInput('stories', validatedStories.stories);
+            }
+
         } catch (error) {
             core.setFailed(`Invalid JSON payload: ${error.message}`);
             return;

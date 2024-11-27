@@ -37,6 +37,8 @@ inputs:
 outputs:
   execution-id:
     description: "The ID of the execution"
+  execution-url:
+    description: "The URL of the execution"
 runs:
   using: "node20"
   main: "dist/index.js"

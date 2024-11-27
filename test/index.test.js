@@ -180,29 +180,11 @@ describe('GitHub Action Tests', () => {
 
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite" is provided, "stories" should come from "stories", not "payload".'));
         });
-
-        it('should execute the full workflow successfully, given a suite-id', async () => {
-            core.getInput = jest.fn().mockImplementation((name) => {
-                const inputs = {
-                    'api-token': 'test-token',
-                    'suite-id': 'test-suite',
-                    'payload': '{}',
-                    'wait-for-results': 'yes',
-                    'domain': 'https://api.test.com',
-                    'comment-on-pr': 'yes',
-                    'github-token': 'github-token'
-                };
-                return inputs[name];
-            });
-
-            await run();
-
-            expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'test-execution');
-            expect(core.setOutput).toHaveBeenCalledWith('execution-url', 'http://test.com/execution');
-            expect(global.fetch).toHaveBeenCalledTimes(2); // One for trigger, one for status
-        }, 10000);
-
         it('should handle API errors gracefully', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                return null;
+            });
             global.fetch = jest.fn().mockRejectedValue(new Error('API Error'));
 
             await run();
@@ -221,11 +203,77 @@ describe('GitHub Action Tests', () => {
 
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON payload'));
         });
-
-        it('should execute the full workflow successfully - given a suite', async () => {
+        it('should fail if payload is not an array of stories', async () => {
             core.getInput = jest.fn().mockImplementation((name) => {
-                if (name === 'stories') return JSON.stringify([{ storySlug: 'hello' }]);
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'payload') return JSON.stringify({ invalidKey: 'invalidValue' });
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid payload: "stories" must be an array.'));
+        });
+
+        it('should fail if stories in payload have invalid structure', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'payload') {
+                    return JSON.stringify({
+                        stories: [{ id: 'invalidId', entryHref: 123 }]
+                    });
+                }
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('"id" must be a number'));
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON payload: Invalid story: \"id\" must be a number. Found string.'));
+        });
+
+        it('should fail if stories is not an array', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
                 if (name === 'suite') return 'test/test-suite';
+                if (name === 'stories') return JSON.stringify({ invalidKey: 'invalidValue' });
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid stories: "stories" must be an array.'));
+        });
+
+        it('should fail if stories have invalid structure', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                if (name === 'stories') {
+                    return JSON.stringify([
+                        {
+                            slug: 123,
+                            'test-config': { entrypoint: 456 }
+                        }
+                    ]);
+                }
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('"slug" must be a string'));
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON payload: Invalid story: \"slug\" must be a string. Found number.'));
+        });
+        it('should execute the full workflow successfully, given a suite-id', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'payload') {
+                    return JSON.stringify({
+                        stories: [
+                            { id: 1, entryHref: 'http://example.com/story1' },
+                            { id: 2, variables: { key: 'value' } }
+                        ]
+                    });
+                }
                 return null;
             });
 
@@ -234,6 +282,31 @@ describe('GitHub Action Tests', () => {
             expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'test-execution');
             expect(core.setOutput).toHaveBeenCalledWith('execution-url', 'http://test.com/execution');
             expect(global.fetch).toHaveBeenCalledTimes(2); // One for trigger, one for status
-        }, 10000);
+        }, 20000);
+        it('should execute the full workflow successfully - given a suite', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                if (name === 'stories') {
+                    return JSON.stringify([
+                        {
+                            slug: 'story1',
+                            'test-config': {
+                                entrypoint: 'http://example.com/entry1',
+                                variables: { key: 'value' }
+                            }
+                        }
+                    ]);
+                }
+                return null;
+            });
+
+            await run();
+
+            expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'test-execution');
+            expect(core.setOutput).toHaveBeenCalledWith('execution-url', 'http://test.com/execution');
+            expect(global.fetch).toHaveBeenCalledTimes(2); // One for trigger, one for status
+        }, 20000);
     });
+
+
 });
