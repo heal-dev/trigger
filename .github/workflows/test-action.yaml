@@ -38,7 +38,7 @@ jobs:
           stories: |
             [
               {
-                "slug": "create-a-block-then-cleanup",
+                "slug": "create-a-story-with-left-click",
                 "test-config": {
                   "entrypoint": "https://app-staging.heal.dev",
                   "variables": {

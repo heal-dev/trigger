@@ -3,7 +3,7 @@ const { context, getOctokit } = require('@actions/github');
 
 
 async function createTestSummary(results, url) {
-    const { runs } = results;
+    const { runs, projectName, suiteName } = results;
 
     // Calculate statistics
     const totalTests = runs.length;
@@ -28,6 +28,8 @@ async function createTestSummary(results, url) {
 
     core.summary
         .addHeading('🧪 Heal Test Results', 2)
+        .addHeading(`Project: ${projectName}`, 3)
+        .addHeading(`Suite: ${suiteName}`, 3)
         .addTable([tableHeader, tableRow]);
 
 
@@ -65,8 +67,11 @@ async function createPRComment(githubToken, body) {
 }
 
 function formatTestResults(results, url) {
-    const { runs } = results;
+    const { runs, projectName, suiteName } = results;
     let comment = '## 🧪 Heal Test Results\n\n';
+
+    comment += `**Project**: ${projectName}\n`;
+    comment += `**Suite**: ${suiteName}\n\n`;
 
     const totalTests = runs.length;
     const passedTests = runs.filter(run => run.result === 'PASS').length;
