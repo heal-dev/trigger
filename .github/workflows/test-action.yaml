@@ -52,36 +52,36 @@ jobs:
               "stories": [
                 {
                   "id": 5053,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"
+                  "entryHref": "https://app-staging.heal.dev"
                 },
                 {
                   "id": 5497,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}"
+                  "entryHref": "https://app-staging.heal.dev"
                 },
                 {
                   "id": 5567,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
-                   "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                  "entryHref": "https://app-staging.heal.dev",
+                   "variables": {"entryHref": "https://app-staging.heal.dev" }
                 },
                 {
                   "id": 5566,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
-                   "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                  "entryHref": "https://app-staging.heal.dev",
+                   "variables": {"entryHref": "https://app-staging.heal.dev}" }
                 },
                 {
                   "id": 5565,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
-                  "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                  "entryHref": "https://app-staging.heal.dev",
+                  "variables": {"entryHref": "https://app-staging.heal.dev" }
                 },
                 {
                   "id": 5567,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
-                  "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                  "entryHref": "https://app-staging.heal.dev}",
+                  "variables": {"entryHref": "https://app-staging.heal.dev" }
                 },
                 {
                   "id": 5592,
-                  "entryHref": "${{ needs.deploy-preview.outputs.preview_url }}",
-                  "variables": {"entryHref": "${{ needs.deploy-preview.outputs.preview_url }}" }
+                  "entryHref": "https://app-staging.heal.dev",
+                  "variables": {"entryHref": "https://app-staging.heal.dev" }
                 }
               ]
             }
