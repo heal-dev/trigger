@@ -66,7 +66,7 @@ jobs:
                 {
                   "id": 5566,
                   "entryHref": "https://app-staging.heal.dev",
-                   "variables": {"entryHref": "https://app-staging.heal.dev}" }
+                   "variables": {"entryHref": "https://app-staging.heal.dev" }
                 },
                 {
                   "id": 5565,
@@ -75,7 +75,7 @@ jobs:
                 },
                 {
                   "id": 5567,
-                  "entryHref": "https://app-staging.heal.dev}",
+                  "entryHref": "https://app-staging.heal.dev",
                   "variables": {"entryHref": "https://app-staging.heal.dev" }
                 },
                 {
