@@ -24,7 +24,7 @@ Use this method if you already have the numeric ID of the test suite and optiona
             "entryHref": "www.google.com"  # URL to test, overrides the default setting.
             "variables":                   # Variables to customize the test configuration.
               {
-                buttonName : send    
+                "buttonName": "send"    
               }
           }
         ]

@@ -109,6 +109,59 @@ function formatTestResults(results, url) {
     return comment;
 }
 
+function validatePayloadFormat(payload) {
+    if (!Array.isArray(payload.stories)) {
+        throw new Error('Invalid payload: "stories" must be an array.');
+    }
+
+    payload.stories.forEach(story => {
+        if (typeof story.id !== 'number') {
+            throw new Error(`Invalid story: "id" must be a number. Found ${typeof story.id}.`);
+        }
+        if (story.entryHref && typeof story.entryHref !== 'string') {
+            throw new Error(`Invalid story: "entryHref" must be a string if provided. Found ${typeof story.entryHref}.`);
+        }
+        if (story.variables && typeof story.variables !== 'object') {
+            throw new Error(`Invalid story: "variables" must be an object if provided. Found ${typeof story.variables}.`);
+        }
+    });
+}
+
+function validateStoriesFormat(stories) {
+    if (!Array.isArray(stories)) {
+        throw new Error('Invalid stories: "stories" must be an array.');
+    }
+
+    stories.forEach(story => {
+        if (typeof story.slug !== 'string') {
+            throw new Error(`Invalid story: "slug" must be a string. Found ${typeof story.slug}.`);
+        }
+        if (story['test-config']) {
+            const testConfig = story['test-config'];
+            if (testConfig.entrypoint && typeof testConfig.entrypoint !== 'string') {
+                throw new Error(`Invalid test-config: "entrypoint" must be a string if provided. Found ${typeof testConfig.entrypoint}.`);
+            }
+            if (testConfig.variables && typeof testConfig.variables !== 'object') {
+                throw new Error(`Invalid test-config: "variables" must be an object if provided. Found ${typeof testConfig.variables}.`);
+            }
+        }
+    });
+}
+
+function validateInput(inputType, input) {
+    switch (inputType) {
+        case 'payload':
+            validatePayloadFormat(input);
+            break;
+        case 'stories':
+            validateStoriesFormat(input);
+            break;
+        default:
+            throw new Error('Invalid input type for validation.');
+    }
+}
+
+
 async function run() {
     try {
         // Get inputs
@@ -137,7 +190,6 @@ async function run() {
         }
 
         const apiToken = core.getInput('api-token');
-        const payloadInput = suiteId ? core.getInput('payload') : core.getInput('stories');
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
         const commentOnPr = core.getInput('comment-on-pr') || 'no';
@@ -146,11 +198,13 @@ async function run() {
         // Parse and validate payload
         let validatedPayload;
         try {
-            validatedPayload = payloadInput ? JSON.parse(payloadInput) : {};
-            core.info(`Stories: ${JSON.stringify(validatedPayload)}`);
-            if (Array.isArray(validatedPayload)) {
-                validatedPayload = { stories: validatedPayload };
-            }
+            /**
+            * @type {{ stories: { id: number, entryHref: string, variables?: Record<string, string> }[]} ||
+            * { stories: { slug: string, "test-config"?: { entrypoint?: string, variables?: Record<string, string> } }[] }}
+            */
+            validatedStories = suiteId ? JSON.parse(core.getInput('payload'))
+                : { stories: JSON.parse(core.getInput('stories')) };
+            suiteId ? validateInput('payload', validatedStories) : validateInput('stories', validatedStories);
         } catch (error) {
             core.setFailed(`Invalid JSON payload: ${error.message}`);
             return;

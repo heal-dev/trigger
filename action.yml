@@ -28,13 +28,15 @@ inputs:
     description: "Optional payload in JSON format"
     required: false
   suite:
-    description: "Project slug name and Suitt Slug name separated by /, for example: my-project/my-suite"
+    description: "Project slug name and Suite slug name, e.g. my-project/my-suite"
     required: false
     default: ""
   stories:
-    description: "List of story to run in JSON format"
+    description: "List of stories to run in JSON format"
     required: false
-
+outputs:
+  execution-id:
+    description: "The ID of the execution"
 runs:
   using: "node20"
   main: "dist/index.js"
