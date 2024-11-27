@@ -217,6 +217,8 @@ async function run() {
             } else if (inputStories && suite) {
                 validatedStories = { stories: JSON.parse(inputStories) };
                 validateInput('stories', validatedStories.stories);
+            } else {
+                validateInput = suiteId ? {} : { stories: [] };
             }
 
         } catch (error) {
