@@ -63,7 +63,7 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
   uses: heal-dev/trigger@main
   with:
     api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
-    suite-id: "project-test/suite-test" # Required: The ID of the test suite.
+    suite: "project-test/suite-test" # Required: The ID of the test suite.
     stories: | # Optional: JSON payload for the action.
       [
         {
