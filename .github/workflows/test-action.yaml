@@ -46,45 +46,7 @@ jobs:
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
-          suite-id: "443"
-          payload: |
-            {
-              "stories": [
-                {
-                  "id": 5053,
-                  "entryHref": "https://app-staging.heal.dev"
-                },
-                {
-                  "id": 5497,
-                  "entryHref": "https://app-staging.heal.dev"
-                },
-                {
-                  "id": 5567,
-                  "entryHref": "https://app-staging.heal.dev",
-                   "variables": {"entryHref": "https://app-staging.heal.dev" }
-                },
-                {
-                  "id": 5566,
-                  "entryHref": "https://app-staging.heal.dev",
-                   "variables": {"entryHref": "https://app-staging.heal.dev" }
-                },
-                {
-                  "id": 5565,
-                  "entryHref": "https://app-staging.heal.dev",
-                  "variables": {"entryHref": "https://app-staging.heal.dev" }
-                },
-                {
-                  "id": 5567,
-                  "entryHref": "https://app-staging.heal.dev",
-                  "variables": {"entryHref": "https://app-staging.heal.dev" }
-                },
-                {
-                  "id": 5592,
-                  "entryHref": "https://app-staging.heal.dev",
-                  "variables": {"entryHref": "https://app-staging.heal.dev" }
-                }
-              ]
-            }
+          suite-id: "455"
           wait-for-results: "yes"
           domain: "https://api-staging.heal.dev"
           comment-on-pr: "yes"
