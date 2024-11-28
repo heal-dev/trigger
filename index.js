@@ -305,6 +305,12 @@ async function run() {
                             allPassed = false;
                         }
                     }
+                    try {
+                        await createTestSummary(report, report.link);
+                        core.info('Posted test summary to summary section.');
+                    } catch (error) {
+                        core.warning(`Failed to post test summary: ${error.message}`);
+                    }
 
                     // Post comment to PR if requested
                     if (commentOnPr === 'yes' || commentOnPr === 'true') {
@@ -312,8 +318,6 @@ async function run() {
                             const comment = formatTestResults(report, report.link);
                             await createPRComment(githubToken, comment);
                             core.info('Posted test results to PR comment.');
-                            await createTestSummary(report, report.link);
-                            core.info('Posted test summary to summary section.');
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
                         }
