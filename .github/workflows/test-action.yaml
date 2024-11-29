@@ -10,7 +10,6 @@ on:
       - main
 
 jobs:
-
   automated-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -44,7 +43,7 @@ jobs:
           node-version: 22
 
       - name: Run Action
-        id: my-action
+        id: my-action_old
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
@@ -53,9 +52,36 @@ jobs:
           domain: "https://api-staging.heal.dev"
           comment-on-pr: "yes"
 
-      - name: Assert Result
+      - name: Run Action
+        id: my-action_new
+        uses: ./
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }}
+          suite: "testcitriggers/heal-core-functions"
+          stories: |
+            [
+              {
+                "slug": "create-a-story-with-left-click",
+                "test-config": {
+                  "entrypoint": "https://app-staging.heal.dev",
+                  "variables": {
+                    "blockName": "Test block"
+                  }
+                }
+              }
+            ]
+          wait-for-results: "yes"
+          domain: "https://api-staging.heal.dev"
+          comment-on-pr: "yes"
+      - name: Assert Result my-action_old
         run: |
-          if [[ "${{ steps.my-action.outputs.execution-id }}" == "" ]]; then
+          if [[ "${{ steps.my-action_old.outputs.execution-id }}" == "" ]]; then
+            echo "Action failed to return an execution ID."
+            exit 1
+          fi
+      - name: Assert Result my-action_new
+        run: |
+          if [[ "${{ steps.my-action_new.outputs.execution-id }}" == "" ]]; then
             echo "Action failed to return an execution ID."
             exit 1
           fi

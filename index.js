@@ -3,7 +3,7 @@ const { context, getOctokit } = require('@actions/github');
 
 
 async function createTestSummary(results, url) {
-    const { runs } = results;
+    const { runs, projectName, suiteName } = results;
 
     // Calculate statistics
     const totalTests = runs.length;
@@ -28,6 +28,8 @@ async function createTestSummary(results, url) {
 
     core.summary
         .addHeading('🧪 Heal Test Results', 2)
+        .addHeading(`Project: ${projectName}`, 3)
+        .addHeading(`Suite: ${suiteName}`, 3)
         .addTable([tableHeader, tableRow]);
 
 
@@ -65,8 +67,11 @@ async function createPRComment(githubToken, body) {
 }
 
 function formatTestResults(results, url) {
-    const { runs } = results;
+    const { runs, projectName, suiteName } = results;
     let comment = '## 🧪 Heal Test Results\n\n';
+
+    comment += `**Project**: ${projectName}\n`;
+    comment += `**Suite**: ${suiteName}\n\n`;
 
     const totalTests = runs.length;
     const passedTests = runs.filter(run => run.result === 'PASS').length;
@@ -104,40 +109,141 @@ function formatTestResults(results, url) {
     return comment;
 }
 
+function validatePayloadFormat(payload) {
+    if (!Array.isArray(payload.stories)) {
+        throw new Error('Invalid payload: "stories" must be an array.');
+    }
+
+    payload.stories.forEach(story => {
+        if (typeof story.id !== 'number') {
+            throw new Error(`Invalid story: "id" must be a number. Found ${typeof story.id}.`);
+        }
+        if (story.entryHref && typeof story.entryHref !== 'string') {
+            throw new Error(`Invalid story: "entryHref" must be a string if provided. Found ${typeof story.entryHref}.`);
+        }
+        if (story.variables && typeof story.variables !== 'object') {
+            throw new Error(`Invalid story: "variables" must be an object if provided. Found ${typeof story.variables}.`);
+        }
+    });
+}
+
+function validateStoriesFormat(stories) {
+    if (!Array.isArray(stories)) {
+        throw new Error('Invalid stories: "stories" must be an array.');
+    }
+
+    stories.forEach(story => {
+        if (typeof story.slug !== 'string') {
+            throw new Error(`Invalid story: "slug" must be a string. Found ${typeof story.slug}.`);
+        }
+        if (story['test-config']) {
+            const testConfig = story['test-config'];
+            if (testConfig.entrypoint && typeof testConfig.entrypoint !== 'string') {
+                throw new Error(`Invalid test-config: "entrypoint" must be a string if provided. Found ${typeof testConfig.entrypoint}.`);
+            }
+            if (testConfig.variables && typeof testConfig.variables !== 'object') {
+                throw new Error(`Invalid test-config: "variables" must be an object if provided. Found ${typeof testConfig.variables}.`);
+            }
+        }
+    });
+}
+
+function validateInput(inputType, input) {
+    switch (inputType) {
+        case 'payload':
+            validatePayloadFormat(input);
+            break;
+        case 'stories':
+            validateStoriesFormat(input);
+            break;
+        default:
+            throw new Error('Invalid input type for validation.');
+    }
+}
+
+
 async function run() {
     try {
         // Get inputs
-        const apiToken = core.getInput('api-token');
         const suiteId = core.getInput('suite-id');
-        const payloadInput = core.getInput('payload');
+        const suite = core.getInput('suite');
+        const payload = core.getInput('payload');
+        const stories = core.getInput('stories');
+
+        if (suiteId && suite) {
+            core.setFailed('Please provide either suite-id or suite, not both.');
+            return;
+        }
+        if (!suiteId && !suite) {
+            core.setFailed('Please provide either suite-id or suite.');
+            return;
+        }
+
+        if (suiteId && stories) {
+            core.setFailed('When "suite-id" is provided, "stories" should come from "payload", not "stories".');
+            return;
+        }
+
+        if (suite && payload) {
+            core.setFailed('When "suite" is provided, "stories" should come from "stories", not "payload".');
+            return;
+        }
+
+        const apiToken = core.getInput('api-token');
         const waitForResults = core.getInput('wait-for-results') || 'yes';
         const domain = core.getInput('domain') || 'https://api.heal.dev';
         const commentOnPr = core.getInput('comment-on-pr') || 'no';
         const githubToken = core.getInput('github-token');
 
-        // Parse and validate payload
-        let payload;
+        /**
+        * @type {{ stories: { id: number, entryHref: string, variables?: Record<string, string> }[]} ||
+        * { stories: { slug: string, "test-config"?: { entrypoint?: string, variables?: Record<string, string> } }[] }}
+        */
+        let validatedPayload;
         try {
-            payload = payloadInput ? JSON.parse(payloadInput) : {};
+
+            const inputPayload = core.getInput('payload');
+            const inputStories = core.getInput('stories');
+
+            if (suiteId && inputPayload) {
+                validatedPayload = JSON.parse(inputPayload);
+                validateInput('payload', validatedPayload);
+            } else if (inputStories && suite) {
+                validatedPayload = { stories: JSON.parse(inputStories) };
+                validateInput('stories', validatedPayload.stories);
+            } else {
+                validatedPayload = suiteId ? {} : { stories: [] };
+            }
+
         } catch (error) {
             core.setFailed(`Invalid JSON payload: ${error.message}`);
             return;
         }
 
         // Construct trigger URL
-        const triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
+        let triggerUrl, projectSlug, suiteSlug;
+        if (suiteId) {
+            triggerUrl = `${domain}/api/suite/${suiteId}/trigger`;
+        } else {
+            [projectSlug, suiteSlug] = suite.split('/');
+            if (!projectSlug || !suiteSlug) {
+                core.setFailed('Invalid suite input. Please provide the suite in the format "project/suite".');
+                return;
+            }
+            triggerUrl = `${domain}/api/projects/${projectSlug}/suites/${suiteSlug}/trigger`;
+        }
 
         core.info(`Triggering suite execution at ${triggerUrl}...`);
 
         // Trigger the suite execution
-        core.debug(`POST ${triggerUrl} with payload: ${JSON.stringify(payload)}`);
+        core.debug(`POST ${triggerUrl} with payload: ${JSON.stringify(validatedPayload)}`);
         const triggerResponse = await fetch(triggerUrl, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(validatedPayload)
         });
 
         if (!triggerResponse.ok) {
@@ -199,6 +305,12 @@ async function run() {
                             allPassed = false;
                         }
                     }
+                    try {
+                        await createTestSummary(report, report.link);
+                        core.info('Posted test summary to summary section.');
+                    } catch (error) {
+                        core.warning(`Failed to post test summary: ${error.message}`);
+                    }
 
                     // Post comment to PR if requested
                     if (commentOnPr === 'yes' || commentOnPr === 'true') {
@@ -206,8 +318,6 @@ async function run() {
                             const comment = formatTestResults(report, report.link);
                             await createPRComment(githubToken, comment);
                             core.info('Posted test results to PR comment.');
-                            await createTestSummary(report, report.link);
-                            core.info('Posted test summary to summary section.');
                         } catch (error) {
                             core.warning(`Failed to post PR comment: ${error.message}`);
                         }
