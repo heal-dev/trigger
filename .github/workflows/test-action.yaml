@@ -62,13 +62,13 @@ jobs:
             {
               "entrypoint": "https://app-staging.heal.dev",
               "variables": {
-                "blockName": "Test block"
+                "blockName": "Test block22"
               }
             }
           stories: |
             [
               {
-                "slug": "create-a-story-with-left-click"
+                "slug": "create-a-story-with-a-block"
               }
             ]
           wait-for-results: "yes"
