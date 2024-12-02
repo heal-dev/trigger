@@ -259,7 +259,7 @@ async function run() {
         core.info(`Triggering suite execution at ${triggerUrl}...`);
 
         // Trigger the suite execution
-        core.debug(`POST ${triggerUrl} with payload: ${JSON.stringify(validatedPayload)}`);
+        core.info(`POST ${triggerUrl} with payload: ${JSON.stringify(validatedPayload)}`);
         const triggerResponse = await fetch(triggerUrl, {
             method: 'POST',
             headers: {
