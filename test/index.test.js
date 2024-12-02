@@ -166,7 +166,7 @@ describe('GitHub Action Tests', () => {
 
             await run();
 
-            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite-id" is provided, "stories" should come from "payload", not "stories".'));
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite-id" is provided, "stories" should come from "payload", not "stories" or "test-config".'));
         });
 
         it('should fail if suite provided with payload instead of stories', async () => {
@@ -296,6 +296,64 @@ describe('GitHub Action Tests', () => {
                             }
                         }
                     ]);
+                }
+                return null;
+            });
+
+            await run();
+
+            expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'test-execution');
+            expect(core.setOutput).toHaveBeenCalledWith('execution-url', 'http://test.com/execution');
+            expect(global.fetch).toHaveBeenCalledTimes(2); // One for trigger, one for status
+        }, 20000);
+        it('should fail if global "test-config" has an invalid "entrypoint"', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                if (name === 'test-config') {
+                    return JSON.stringify({
+                        entrypoint: 123 // Invalid entrypoint
+                    });
+                }
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('"entrypoint" must be a string if provided. Found number.'));
+        });
+
+        it('should fail if global "test-config" has an invalid "variables" type', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                if (name === 'test-config') {
+                    return JSON.stringify({
+                        variables: 'invalid' // Invalid variables type
+                    });
+                }
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('"variables" must be an object if provided. Found string.'));
+        });
+
+        it('should execute successfully with valid global "test-config"', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                if (name === 'stories') {
+                    return JSON.stringify([
+                        {
+                            slug: 'story1',
+                            'test-config': { entrypoint: 'http://example.com/entry1' }
+                        }
+                    ]);
+                }
+                if (name === 'test-config') {
+                    return JSON.stringify({
+                        entrypoint: 'http://example.com/global-entry',
+                        variables: { globalKey: 'globalValue' }
+                    });
                 }
                 return null;
             });

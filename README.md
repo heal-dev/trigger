@@ -23,7 +23,15 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
   uses: heal-dev/trigger@main
   with:
     api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
-    suite: "project-test/suite-test" # Required: The ID of the test suite.
+    suite: "project-test/suite-test" # Required: The ID of the test suite
+    test-config: | # Global test configuration
+      {
+         "entrypoint": "https://app-staging.heal.dev",  # URL to override the default entry point.
+          "variables":                                   #  Variables to customize the test configuration.
+           {
+            "buttonName": "Test"
+          }
+      }
     stories: | # Optional: JSON payload for the action.
       [
         {
@@ -33,7 +41,7 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
               "entrypoint": "https://app-staging.heal.dev",  # URL to override the default entry point.
               "variables":                                   #  Variables to customize the test configuration.
                 {
-                  "buttonName": "Test"
+                  "buttonName": "Test Story"
                 }
               }
         }
@@ -49,10 +57,19 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
 | ------------------ | -------- | --------------------------------------------------------------------------------------- |
 | `api-token`        | ✅       | Your Heal API token (you can create one [here](https://app.heal.dev/organisation/keys)) |
 | `suite`            | ✅       | The slug name of the test suite (e.g., project-slug-name/suite-slug-name).              |
-| `stories`          | ❌       | Optional JSON payload to specify story slugs and override test configurations           |
+| `test-config`      | ❌       | Optional JSON payload to specify global test configuration.                             |
+| `stories`          | ❌       | Optional JSON payload to specify story slugs and override global test configurations    |
 | `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).                                           |
 | `domain`           | ❌       | (default: `https://api.heal.dev`).                                                      |
 | `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).                                  |
+
+### Test Configuration (test-config)
+
+The test-config input allows you to customize test parameters, such as the entry point URL or specific variables. You can define it at two levels:
+
+**Global Configuration (Suite Level)**: Applies to all stories in the suite unless overridden by a local configuration.
+
+**Local Configuration (Story Level)**: Overrides the global configuration for specific stories.
 
 ### Using Suite ID (legacy)
 

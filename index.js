@@ -127,25 +127,38 @@ function validatePayloadFormat(payload) {
     });
 }
 
-function validateStoriesFormat(stories) {
-    if (!Array.isArray(stories)) {
+function validateStoriesFormat(config) {
+    if (config['test-config']) {
+        const testConfig = config['test-config'];
+        if (testConfig.entrypoint && typeof testConfig.entrypoint !== 'string') {
+            throw new Error(`Invalid test-config: "entrypoint" must be a string if provided. Found ${typeof testConfig.entrypoint}.`);
+        }
+        if (testConfig.variables && typeof testConfig.variables !== 'object') {
+            throw new Error(`Invalid test-config: "variables" must be an object if provided. Found ${typeof testConfig.variables}.`);
+        }
+    }
+
+    if (config.stories && !Array.isArray(config.stories)) {
         throw new Error('Invalid stories: "stories" must be an array.');
     }
 
-    stories.forEach(story => {
-        if (typeof story.slug !== 'string') {
-            throw new Error(`Invalid story: "slug" must be a string. Found ${typeof story.slug}.`);
-        }
-        if (story['test-config']) {
-            const testConfig = story['test-config'];
-            if (testConfig.entrypoint && typeof testConfig.entrypoint !== 'string') {
-                throw new Error(`Invalid test-config: "entrypoint" must be a string if provided. Found ${typeof testConfig.entrypoint}.`);
+    if (config.stories) {
+        config.stories.forEach(story => {
+            if (typeof story.slug !== 'string') {
+                throw new Error(`Invalid story: "slug" must be a string. Found ${typeof story.slug}.`);
             }
-            if (testConfig.variables && typeof testConfig.variables !== 'object') {
-                throw new Error(`Invalid test-config: "variables" must be an object if provided. Found ${typeof testConfig.variables}.`);
+            if (story['test-config']) {
+                const testConfig = story['test-config'];
+                if (testConfig.entrypoint && typeof testConfig.entrypoint !== 'string') {
+                    throw new Error(`Invalid test-config: "entrypoint" must be a string if provided. Found ${typeof testConfig.entrypoint}.`);
+                }
+                if (testConfig.variables && typeof testConfig.variables !== 'object') {
+                    throw new Error(`Invalid test-config: "variables" must be an object if provided. Found ${typeof testConfig.variables}.`);
+                }
             }
-        }
-    });
+
+        });
+    }
 }
 
 function validateInput(inputType, input) {
@@ -169,6 +182,7 @@ async function run() {
         const suite = core.getInput('suite');
         const payload = core.getInput('payload');
         const stories = core.getInput('stories');
+        const testConfig = core.getInput('test-config');
 
         if (suiteId && suite) {
             core.setFailed('Please provide either suite-id or suite, not both.');
@@ -179,8 +193,8 @@ async function run() {
             return;
         }
 
-        if (suiteId && stories) {
-            core.setFailed('When "suite-id" is provided, "stories" should come from "payload", not "stories".');
+        if (suiteId && (stories || testConfig)) {
+            core.setFailed('When "suite-id" is provided, "stories" should come from "payload", not "stories" or "test-config".');
             return;
         }
 
@@ -197,7 +211,8 @@ async function run() {
 
         /**
         * @type {{ stories: { id: number, entryHref: string, variables?: Record<string, string> }[]} ||
-        * { stories: { slug: string, "test-config"?: { entrypoint?: string, variables?: Record<string, string> } }[] }}
+        * { stories: { slug: string, "test-config"?: { entrypoint?: string, variables?: Record<string, string> } }[],
+        *  "test-config"?: { entrypoint?: string, variables?: Record<string, string> } }}
         */
         let validatedPayload;
         try {
@@ -208,9 +223,17 @@ async function run() {
             if (suiteId && inputPayload) {
                 validatedPayload = JSON.parse(inputPayload);
                 validateInput('payload', validatedPayload);
-            } else if (inputStories && suite) {
-                validatedPayload = { stories: JSON.parse(inputStories) };
-                validateInput('stories', validatedPayload.stories);
+            } else if (suite) {
+                validatedPayload = {};
+                if (inputStories) {
+                    validatedPayload.stories = JSON.parse(inputStories);
+                }
+                if (testConfig) {
+                    validatedPayload["test-config"] = JSON.parse(testConfig);
+                }
+                if (validatedPayload) {
+                    validateInput('stories', validatedPayload, testConfig);
+                }
             } else {
                 validatedPayload = suiteId ? {} : { stories: [] };
             }

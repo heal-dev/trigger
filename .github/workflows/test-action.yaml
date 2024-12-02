@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
           cache: npm
 
       - name: Download deps
@@ -58,16 +58,17 @@ jobs:
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
           suite: "testcitriggers/heal-core-functions"
+          test-config: |
+            {
+              "entrypoint": "https://app-staging.heal.dev",
+              "variables": {
+                "blockName": "Test block"
+              }
+            }
           stories: |
             [
               {
                 "slug": "create-a-story-with-left-click",
-                "test-config": {
-                  "entrypoint": "https://app-staging.heal.dev",
-                  "variables": {
-                    "blockName": "Test block"
-                  }
-                }
               }
             ]
           wait-for-results: "yes"
