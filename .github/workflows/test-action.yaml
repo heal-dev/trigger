@@ -68,7 +68,7 @@ jobs:
           stories: |
             [
               {
-                "slug": "create-a-story-with-left-click",
+                "slug": "create-a-story-with-left-click"
               }
             ]
           wait-for-results: "yes"
