@@ -60,7 +60,7 @@ jobs:
           suite: "testcitriggers/heal-core-functions"
           test-config: |
             {
-              "entrypoint": "https://www.google.com",
+              "entrypoint": "https://app-staging.heal.dev/",
               "variables": {
                 "blockName": "Test block22"
               }
@@ -68,7 +68,7 @@ jobs:
           stories: |
             [
               {
-                "slug": "create-a-story-with-a-block"
+                "slug": "create-a-block-then-cleanup"
               }
             ]
           wait-for-results: "yes"
