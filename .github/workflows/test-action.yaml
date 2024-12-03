@@ -62,7 +62,7 @@ jobs:
             {
               "entrypoint": "https://app-staging.heal.dev/",
               "variables": {
-                "blockName": "Test block22"
+                "blockName": "Test block"
               }
             }
           stories: |
