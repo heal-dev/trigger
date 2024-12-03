@@ -100,7 +100,6 @@ jobs:
             ]
           wait-for-results: "yes"
           domain: "https://api-staging.heal.dev"
-          comment-on-pr: "yes"
       - name: Assert Result my-action_old
         run: |
           if [[ "${{ steps.my-action_old.outputs.execution-id }}" == "" ]]; then
