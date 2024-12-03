@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
           cache: npm
 
       - name: Download deps
@@ -51,28 +51,55 @@ jobs:
           wait-for-results: "yes"
           domain: "https://api-staging.heal.dev"
           comment-on-pr: "yes"
-
       - name: Run Action
         id: my-action_new
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
-          suite: "testcitriggers/heal-core-functions"
+          suite: "wen/trigger"
+          test-config: |
+            {
+              "entrypoint": "https://www.wikipedia.org/",
+              "variables": {
+                "hello": "test level"
+              }
+            }
           stories: |
             [
               {
-                "slug": "create-a-story-with-left-click",
+                "slug": "new-test",
                 "test-config": {
-                  "entrypoint": "https://app-staging.heal.dev",
-                  "variables": {
-                    "blockName": "Test block"
-                  }
+                "entrypoint": "https://www.ikea.com/fr/fr/",
+                    "variables": {
+                      "hello": "story level"
+                    }
                 }
               }
             ]
           wait-for-results: "yes"
           domain: "https://api-staging.heal.dev"
-          comment-on-pr: "yes"
+
+      - name: Run Action
+        id: my-action_new_with_test_config
+        uses: ./
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }}
+          suite: "wen/trigger"
+          test-config: |
+            {
+              "entrypoint": "https://www.wikipedia.org/",
+              "variables": {
+                "hello": "you"
+              }
+            }
+          stories: |
+            [
+              {
+                "slug": "new-test"
+              }
+            ]
+          wait-for-results: "yes"
+          domain: "https://api-staging.heal.dev"
       - name: Assert Result my-action_old
         run: |
           if [[ "${{ steps.my-action_old.outputs.execution-id }}" == "" ]]; then
@@ -82,6 +109,12 @@ jobs:
       - name: Assert Result my-action_new
         run: |
           if [[ "${{ steps.my-action_new.outputs.execution-id }}" == "" ]]; then
+            echo "Action failed to return an execution ID."
+            exit 1
+          fi
+      - name: Assert Result my-action_new_with_test_config
+        run: |
+          if [[ "${{ steps.my-action_new_with_test_config.outputs.execution-id }}" == "" ]]; then
             echo "Action failed to return an execution ID."
             exit 1
           fi

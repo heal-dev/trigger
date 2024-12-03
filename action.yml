@@ -31,6 +31,9 @@ inputs:
     description: "Project slug name and Suite slug name, e.g. my-project/my-suite"
     required: false
     default: ""
+  test-config:
+    description: "Global configuration in JSON format"
+    required: false
   stories:
     description: "List of stories to run in JSON format"
     required: false
