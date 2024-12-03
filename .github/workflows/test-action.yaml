@@ -57,18 +57,18 @@ jobs:
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
-          suite: "testcitriggers/heal-core-functions"
+          suite: "wen/trigger"
           test-config: |
             {
-              "entrypoint": "https://app-staging.heal.dev/",
+              "entrypoint": "https://www.wikipedia.org/",
               "variables": {
-                "blockName": "Test block"
+                "hello": "you"
               }
             }
           stories: |
             [
               {
-                "slug": "create-a-block-then-cleanup"
+                "slug": "new-test"
               }
             ]
           wait-for-results: "yes"
