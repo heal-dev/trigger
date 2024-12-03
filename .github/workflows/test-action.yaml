@@ -56,22 +56,22 @@ jobs:
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
-          suite: "testcitriggers/heal-core-functions"
+          suite: "wen/trigger"
           test-config: |
             {
-              "entrypoint": "https://app-staging.heal.dev",
+              "entrypoint": "https://www.wikipedia.org/",
               "variables": {
-                "blockName": "Test Suite"
+                "hello": "test level"
               }
             }
           stories: |
             [
               {
-                "slug": "create-a-story-with-left-click",
+                "slug": "new-test",
                 "test-config": {
-                "entrypoint": "https://app-staging.heal.dev",
+                "entrypoint": "https://www.google.com/",
                     "variables": {
-                      "blockName": "Test block"
+                      "hello": "story level"
                     }
                 }
               }
