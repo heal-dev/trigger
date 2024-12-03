@@ -69,7 +69,7 @@ jobs:
               {
                 "slug": "new-test",
                 "test-config": {
-                "entrypoint": "https://www.google.com/",
+                "entrypoint": "https://www.ikea.com/fr/fr/,
                     "variables": {
                       "hello": "story level"
                     }
