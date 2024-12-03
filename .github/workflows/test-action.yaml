@@ -51,9 +51,36 @@ jobs:
           wait-for-results: "yes"
           domain: "https://api-staging.heal.dev"
           comment-on-pr: "yes"
-
       - name: Run Action
         id: my-action_new
+        uses: ./
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }}
+          suite: "testcitriggers/heal-core-functions"
+          test-config: |
+            {
+              "entrypoint": "https://app-staging.heal.dev",
+              "variables": {
+                "blockName": "Test Suite"
+              }
+            }
+          stories: |
+            [
+              {
+                "slug": "create-a-story-with-left-click",
+                "test-config": {
+                "entrypoint": "https://app-staging.heal.dev",
+                    "variables": {
+                      "blockName": "Test block"
+                    }
+                }
+              }
+            ]
+          wait-for-results: "yes"
+          domain: "https://api-staging.heal.dev"
+
+      - name: Run Action
+        id: my-action_new_with_test_config
         uses: ./
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
@@ -83,6 +110,12 @@ jobs:
       - name: Assert Result my-action_new
         run: |
           if [[ "${{ steps.my-action_new.outputs.execution-id }}" == "" ]]; then
+            echo "Action failed to return an execution ID."
+            exit 1
+          fi
+      - name: Assert Result my-action_new_with_test_config
+        run: |
+          if [[ "${{ steps.my-action_new_with_test_config.outputs.execution-id }}" == "" ]]; then
             echo "Action failed to return an execution ID."
             exit 1
           fi
