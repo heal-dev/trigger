@@ -24,7 +24,7 @@ A full suite can be triggered with:
   uses: heal-dev/trigger@v1
   with:
     api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
-    suite: "project-test/suite-test" # Required: The ID of the test suite
+    suite: "project-test/suite-test" # Required: The slug of the project and suite `project-slug-name/suite-slug-name`.
     wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
     comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
