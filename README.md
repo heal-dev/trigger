@@ -47,7 +47,6 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
         }
       ]
     wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
-    domain: "https://api.heal.dev" # Optional
     comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
@@ -60,7 +59,6 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
 | `test-config`      | ❌       | Optional JSON payload to specify global test configuration.                             |
 | `stories`          | ❌       | Optional JSON payload to specify story slugs and override global test configurations    |
 | `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).                                           |
-| `domain`           | ❌       | (default: `https://api.heal.dev`).                                                      |
 | `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).                                  |
 
 ### Test Configuration (test-config)
@@ -71,7 +69,8 @@ The test-config input allows you to customize test parameters, such as the entry
 
 **Local Configuration (Story Level)**: Overrides the global configuration for specific stories.
 
-### Using Suite ID (legacy)
+<details>
+<summary>Using Suite ID (legacy)</summary>
 
 Use this method if you already have the numeric ID of the test suite and optionally the ID of the specific story you want to run from Heal.dev.
 
@@ -110,3 +109,4 @@ Use this method if you already have the numeric ID of the test suite and optiona
 | `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).                                           |
 | `domain`           | ❌       | (default: `https://api.heal.dev`).                                                      |
 | `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).                                  |
+</details>
