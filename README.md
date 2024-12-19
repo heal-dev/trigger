@@ -21,7 +21,7 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
 A full suite can be triggered with:
 ```yaml
 - name: Trigger Heal Suite Execution
-  uses: heal-dev/trigger@main
+  uses: heal-dev/trigger@v1
   with:
     api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
     suite: "project-test/suite-test" # Required: The ID of the test suite
@@ -33,7 +33,7 @@ Or you can trigger a specific story with:
 
 ```yaml
 - name: Trigger Heal Suite Execution
-  uses: heal-dev/trigger@main
+  uses: heal-dev/trigger@v1
   with:
     api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
     suite: "project-test/suite-test" # Required: The ID of the test suite
@@ -89,7 +89,7 @@ Use this method if you already have the numeric ID of the test suite and optiona
 
 ```yaml
 - name: Trigger Heal Suite Execution
-  uses: heal-dev/trigger@main
+  uses: heal-dev/trigger@v1
   with:
     api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
     suite-id: "443" # Required: The ID of the test suite.
