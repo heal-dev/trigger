@@ -1,6 +1,6 @@
 {
   "name": "heal-trigger-action",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Trigger a Heal suite execution and optionally wait for results",
   "main": "dist/index.js",
   "scripts": {
