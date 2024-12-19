@@ -13,7 +13,7 @@ inputs:
   domain:
     description: "Domain for Heal API (default: https://app.heal.dev)"
     required: false
-    default: "https://app.heal.dev"
+    default: "https://api.heal.dev"
   github-token:
     description: The GitHub token used to post comments on pull requests
     default: ${{ github.token }}
