@@ -6,7 +6,7 @@ This GitHub Action triggers a test suite execution on Heal.dev directly from you
 
 To use the **Heal Trigger Action** in your GitHub workflow, you can configure the action using either a **suite ID** or a **suite slug name**.
 
-### Using Suite Slug Name (recommended)
+### Using Suite Slug Name
 
 This method uses the project slug name and suite slug name. A slug is a unique, URL-friendly identifier, typically lowercase, without spaces.
 
@@ -17,6 +17,19 @@ This method uses the project slug name and suite slug name. A slug is a unique, 
 Example Slug Name:
 
 project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
+
+A full suite can be triggered with:
+```yaml
+- name: Trigger Heal Suite Execution
+  uses: heal-dev/trigger@main
+  with:
+    api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
+    suite: "project-test/suite-test" # Required: The ID of the test suite
+    wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
+    comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
+```
+
+Or you can trigger a specific story with:
 
 ```yaml
 - name: Trigger Heal Suite Execution
