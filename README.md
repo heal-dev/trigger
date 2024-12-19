@@ -20,16 +20,25 @@ project-slug-name/suite-slug-name (e.g., my-cool-project/end-to-end-tests).
 
 A full suite can be triggered with:
 ```yaml
-- name: Trigger Heal Suite Execution
-  uses: heal-dev/trigger@v1
-  with:
-    api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
-    suite: "project-test/suite-test" # Required: The slug of the project and suite `project-slug-name/suite-slug-name`.
-    wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
-    comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
+name: Heal.dev CI
+on:
+  push:
+
+jobs:
+  heal-dev:
+    name: Heal.dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Heal Suite Execution
+        uses: heal-dev/trigger@v1
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
+          suite: "project-test/suite-test" # Required: The slug of the project and suite `project-slug-name/suite-slug-name`.
+          wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
+          comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
-Or you can trigger a specific story with:
+To trigger specific stories, update the action with the story slug and optional test configuration:
 
 ```yaml
 - name: Trigger Heal Suite Execution
