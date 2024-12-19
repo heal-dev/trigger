@@ -36,7 +36,7 @@ Or you can trigger a specific story with:
   uses: heal-dev/trigger@v1
   with:
     api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
-    suite: "project-test/suite-test" # Required: The ID of the test suite
+    suite: "project-test/suite-test" # Required: The slug of the project and suite `project-slug-name/suite-slug-name`.
     test-config: | # Global test configuration
       {
          "entrypoint": "https://app-staging.heal.dev",  # URL to override the default entry point.
