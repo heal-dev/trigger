@@ -41,35 +41,44 @@ jobs:
 To trigger specific stories, update the action with the story slug and optional test configuration:
 
 ```yaml
-- name: Trigger Heal Suite Execution
-  uses: heal-dev/trigger@v1
-  with:
-    api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
-    suite: "project-test/suite-test" # Required: The slug of the project and suite `project-slug-name/suite-slug-name`.
-    test-config: | # Global test configuration
-      {
-         "entrypoint": "https://app-staging.heal.dev",  # URL to override the default entry point.
-          "variables":                                   #  Variables to customize the test configuration.
-           {
-            "buttonName": "Test"
-          }
-      }
-    stories: | # Optional: JSON payload for the action.
-      [
-        {
-          "slug": "create-a-block-then-cleanup",  # Slug of the story to run.
-          "test-config":                          # Custom test configuration for this story.
+name: Heal.dev CI
+on:
+  push:
+
+jobs:
+  heal-dev:
+    name: Heal.dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Heal Suite Execution
+        uses: heal-dev/trigger@v1
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
+          suite: "project-test/suite-test" # Required: The slug of the project and suite `project-slug-name/suite-slug-name`.
+          test-config: | # Global test configuration
             {
-              "entrypoint": "https://app-staging.heal.dev",  # URL to override the default entry point.
-              "variables":                                   #  Variables to customize the test configuration.
-                {
-                  "buttonName": "Test Story"
+               "entrypoint": "https://app-staging.heal.dev",  # URL to override the default entry point.
+                "variables":                                   #  Variables to customize the test configuration.
+                 {
+                  "buttonName": "Test"
                 }
+            }
+          stories: | # Optional: JSON payload for the action.
+            [
+              {
+                "slug": "create-a-block-then-cleanup",  # Slug of the story to run.
+                "test-config":                          # Custom test configuration for this story.
+                  {
+                    "entrypoint": "https://app-staging.heal.dev",  # URL to override the default entry point.
+                    "variables":                                   #  Variables to customize the test configuration.
+                      {
+                        "buttonName": "Test Story"
+                      }
+                    }
               }
-        }
-      ]
-    wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
-    comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
+            ]
+          wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
+          comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
 ## Inputs
