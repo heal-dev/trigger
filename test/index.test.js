@@ -166,7 +166,18 @@ describe('GitHub Action Tests', () => {
 
             await run();
 
-            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite-id" is provided, "stories" should come from "payload", not "stories" or "test-config".'));
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When \"suite-id\" is provided, \"stories\" or \"pattern\" should come from \"payload\", not \"stories\", \"pattern\" or \"test-config\".'));
+        });
+        it('should fail if suite-id provided with pattern instead of payload', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'pattern') return 'story-*';
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite-id" is provided, "stories" or "pattern" should come from "payload", not "stories", "pattern" or "test-config".'));
         });
 
         it('should fail if suite provided with payload instead of stories', async () => {
@@ -178,7 +189,7 @@ describe('GitHub Action Tests', () => {
 
             await run();
 
-            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite" is provided, "stories" should come from "stories", not "payload".'));
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('When "suite" is provided, "stories" or "pattern" should come from "stories"/"pattern", not "payload".'));
         });
         it('should handle API errors gracefully', async () => {
             core.getInput = jest.fn().mockImplementation((name) => {
@@ -243,6 +254,24 @@ describe('GitHub Action Tests', () => {
 
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid stories: "stories" must be an array.'));
         });
+        it('should fail if both pattern and stories are provided for a suite', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                if (name === 'stories') {
+                    return JSON.stringify([
+                        {
+                            slug: 'story1'
+                        }
+                    ]);
+                }
+                if (name === 'pattern') return 'story-*';
+                return null;
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Cannot specify both pattern and stories array. Use either pattern or stories, not both.'));
+        });
 
         it('should fail if stories have invalid structure', async () => {
             core.getInput = jest.fn().mockImplementation((name) => {
@@ -297,6 +326,19 @@ describe('GitHub Action Tests', () => {
                         }
                     ]);
                 }
+                return null;
+            });
+
+            await run();
+
+            expect(core.setOutput).toHaveBeenCalledWith('execution-id', 'test-execution');
+            expect(core.setOutput).toHaveBeenCalledWith('execution-url', 'http://test.com/execution');
+            expect(global.fetch).toHaveBeenCalledTimes(2); // One for trigger, one for status
+        }, 20000);
+        it('should execute the full workflow successfully - given a suite pattern', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite') return 'test/test-suite';
+                if (name === 'pattern') return 'story-*';
                 return null;
             });
 
