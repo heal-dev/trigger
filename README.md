@@ -38,7 +38,12 @@ jobs:
           comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
-To trigger specific stories, update the action with the story slug and optional test configuration:
+To trigger specific stories, you can either:
+
+- provide an explicit list of story slugs via `stories`, or
+- provide a glob-style `pattern` that the backend will use to select matching stories.
+
+#### Using explicit `stories`
 
 ```yaml
 name: Heal.dev CI
@@ -81,14 +86,45 @@ jobs:
           comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
 ```
 
+To trigger stories using a **glob-style pattern** instead of listing them explicitly, use the `pattern` input (mutually exclusive with `stories`):
+
+```yaml
+name: Heal.dev CI
+on:
+  push:
+
+jobs:
+  heal-dev:
+    name: Heal.dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Heal Suite Execution with pattern
+        uses: heal-dev/trigger@v1
+        with:
+          api-token: ${{ secrets.HEAL_API_TOKEN }} # Required: Your Heal API token.
+          suite: "project-test/suite-test" # Required: The slug of the project and suite `project-slug-name/suite-slug-name`.
+          pattern: "Button*" # Glob-style pattern for story slugs. Cannot be used together with `stories`.
+          test-config: | # Optional: global test configuration, including onPremiseBrowser
+            {
+              "onPremiseBrowser": true,
+              "entrypoint": "https://app-staging.heal.dev",
+              "variables": {
+                "buttonName": "Pattern Run"
+              }
+            }
+          wait-for-results: "yes" # Optional: Wait for results (default: 'yes').
+          comment-on-pr: "yes" # Optional: Whether to comment test results on PRs (default: 'no').
+```
+
 ## Inputs
 
 | Input              | Required | Description                                                                             |
 | ------------------ | -------- | --------------------------------------------------------------------------------------- |
 | `api-token`        | ✅       | Your Heal API token (you can create one [here](https://app.heal.dev/organisation/keys)) |
 | `suite`            | ✅       | The slug name of the test suite (e.g., project-slug-name/suite-slug-name).              |
-| `test-config`      | ❌       | Optional JSON payload to specify global test configuration.                             |
-| `stories`          | ❌       | Optional JSON payload to specify story slugs and override global test configurations    |
+| `test-config`      | ❌       | Optional JSON payload to specify global test configuration (supports `entrypoint`, `variables`, and `onPremiseBrowser`). |
+| `stories`          | ❌       | Optional JSON payload to specify story slugs and override global test configurations. Mutually exclusive with `pattern`. |
+| `pattern`          | ❌       | Optional glob-style pattern for story slugs. Mutually exclusive with `stories`.         |
 | `wait-for-results` | ❌       | Whether to wait for results (default: `yes`).                                           |
 | `comment-on-pr`    | ❌       | Whether to comment test results on PR (default: `no`).                                  |
 

@@ -136,10 +136,24 @@ function validateStoriesFormat(config) {
         if (testConfig.variables && typeof testConfig.variables !== 'object') {
             throw new Error(`Invalid test-config: "variables" must be an object if provided. Found ${typeof testConfig.variables}.`);
         }
+        if (testConfig.onPremiseBrowser && typeof testConfig.onPremiseBrowser !== 'boolean') {
+            throw new Error(`Invalid test-config: "onPremiseBrowser" must be a boolean if provided. Found ${typeof testConfig.onPremiseBrowser}.`);
+        }
+    }
+
+    if (config.pattern && typeof config.pattern !== 'string') {
+        throw new Error(`Invalid pattern: "pattern" must be a string if provided. Found ${typeof config.pattern}.`);
     }
 
     if (config.stories && !Array.isArray(config.stories)) {
         throw new Error('Invalid stories: "stories" must be an array.');
+    }
+
+    const hasPattern = config.pattern !== undefined && config.pattern !== '';
+    const hasStories = config.stories && config.stories.length > 0;
+
+    if (hasPattern && hasStories) {
+        throw new Error('Cannot specify both pattern and stories array. Use either pattern or stories, not both.');
     }
 
     if (config.stories) {
@@ -154,6 +168,9 @@ function validateStoriesFormat(config) {
                 }
                 if (testConfig.variables && typeof testConfig.variables !== 'object') {
                     throw new Error(`Invalid test-config: "variables" must be an object if provided. Found ${typeof testConfig.variables}.`);
+                }
+                if (testConfig.onPremiseBrowser && typeof testConfig.onPremiseBrowser !== 'boolean') {
+                    throw new Error(`Invalid test-config: "onPremiseBrowser" must be a boolean if provided. Found ${typeof testConfig.onPremiseBrowser}.`);
                 }
             }
 
@@ -183,6 +200,7 @@ async function run() {
         const payload = core.getInput('payload');
         const stories = core.getInput('stories');
         const testConfig = core.getInput('test-config');
+        const pattern = core.getInput('pattern');
 
         if (suiteId && suite) {
             core.setFailed('Please provide either suite-id or suite, not both.');
@@ -193,13 +211,13 @@ async function run() {
             return;
         }
 
-        if (suiteId && (stories || testConfig)) {
-            core.setFailed('When "suite-id" is provided, "stories" should come from "payload", not "stories" or "test-config".');
+        if (suiteId && (stories || testConfig || pattern)) {
+            core.setFailed('When "suite-id" is provided, "stories" or "pattern" should come from "payload", not "stories", "pattern" or "test-config".');
             return;
         }
 
         if (suite && payload) {
-            core.setFailed('When "suite" is provided, "stories" should come from "stories", not "payload".');
+            core.setFailed('When "suite" is provided, "stories" or "pattern" should come from "stories"/"pattern", not "payload".');
             return;
         }
 
@@ -227,6 +245,9 @@ async function run() {
                 validatedPayload = {};
                 if (inputStories) {
                     validatedPayload.stories = JSON.parse(inputStories);
+                }
+                if (pattern) {
+                    validatedPayload.pattern = pattern;
                 }
                 if (testConfig) {
                     validatedPayload["test-config"] = JSON.parse(testConfig);

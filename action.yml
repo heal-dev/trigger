@@ -37,6 +37,9 @@ inputs:
   stories:
     description: "List of stories to run in JSON format"
     required: false
+  pattern:
+    description: "Glob-style pattern of stories to run (mutually exclusive with 'stories')"
+    required: false
 outputs:
   execution-id:
     description: "The ID of the execution"
