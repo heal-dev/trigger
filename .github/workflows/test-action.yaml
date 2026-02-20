@@ -57,13 +57,6 @@ jobs:
         with:
           api-token: ${{ secrets.HEAL_API_TOKEN }}
           suite: "wen/trigger"
-          test-config: |
-            {
-              "entrypoint": "https://www.wikipedia.org/",
-              "variables": {
-                "hello": "you"
-              }
-            }
           stories: |
             [
               {
