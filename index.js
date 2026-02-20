@@ -1,6 +1,11 @@
 const core = require('@actions/core');
 const { context, getOctokit } = require('@actions/github');
 
+async function parseJsonResponse(response) {
+    const text = await response.text();
+    if (!text || text.trim() === '') return null;
+    return JSON.parse(text);
+}
 
 async function createTestSummary(results, url) {
     const { runs, projectName, suiteName } = results;
@@ -294,16 +299,19 @@ async function run() {
             throw new Error(`HTTP error! status: ${triggerResponse.status}`);
         }
 
-        const triggerData = await triggerResponse.json();
-        const { executionId, url } = triggerData;
+        const triggerData = await parseJsonResponse(triggerResponse);
+        const executionId = triggerData?.executionId;
+        const url = triggerData?.url;
 
-        core.info(`Execution started with ID ${executionId}.`);
-        core.info(`execution-url: ${url}`);
-        core.setOutput('execution-id', executionId);
-        core.setOutput('execution-url', url);
+        if (executionId != null && url != null) {
+            core.info(`Execution started with ID ${executionId}.`);
+            core.info(`execution-url: ${url}`);
+            core.setOutput('execution-id', executionId);
+            core.setOutput('execution-url', url);
+        }
 
         // Decide whether to wait for results
-        if (waitForResults.toLowerCase() === 'yes' || waitForResults.toLowerCase() === 'true') {
+        if (executionId != null && url != null && (waitForResults.toLowerCase() === 'yes' || waitForResults.toLowerCase() === 'true')) {
             core.info(`Waiting for execution ${executionId} to finish...`);
 
             let status = 'running';
@@ -331,7 +339,11 @@ async function run() {
                     throw new Error(`HTTP error! status: ${executionResponse.status}`);
                 }
 
-                const report = await executionResponse.json();
+                const report = await parseJsonResponse(executionResponse);
+                if (report == null) {
+                    core.info('Execution status: no body, stopping wait.');
+                    break;
+                }
 
                 status = report.status;
                 core.info(`Execution status: ${status}`);
