@@ -109,20 +109,20 @@ describe('GitHub Action Tests', () => {
 
     describe('run', () => {
         beforeEach(() => {
-            // Mock fetch globally
+            // Mock fetch globally (parseJsonResponse uses text())
             global.fetch = jest.fn().mockImplementation((url) => {
                 if (url.includes('/trigger')) {
                     return Promise.resolve({
                         ok: true,
-                        json: () => Promise.resolve({
+                        text: () => Promise.resolve(JSON.stringify({
                             executionId: 'test-execution',
                             url: 'http://test.com/execution'
-                        })
+                        }))
                     });
                 }
                 return Promise.resolve({
                     ok: true,
-                    json: () => Promise.resolve(mockResults)
+                    text: () => Promise.resolve(JSON.stringify(mockResults))
                 });
             });
         });
@@ -202,6 +202,76 @@ describe('GitHub Action Tests', () => {
 
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('API Error'));
         });
+
+        it('should fail on HTTP error status from trigger', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'payload') return JSON.stringify({ stories: [{ id: 1, entryHref: 'http://example.com' }] });
+                return null;
+            });
+            global.fetch = jest.fn().mockResolvedValue({
+                ok: false,
+                status: 500,
+                text: () => Promise.resolve('')
+            });
+
+            await run();
+
+            expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('HTTP error! status: 500'));
+        });
+
+        it('should not fail when trigger response has empty body (fail only on HTTP status)', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'payload') return JSON.stringify({ stories: [{ id: 1, entryHref: 'http://example.com' }] });
+                return null;
+            });
+            global.fetch = jest.fn().mockImplementation((url) => {
+                if (url.includes('/trigger')) {
+                    return Promise.resolve({
+                        ok: true,
+                        text: () => Promise.resolve('')
+                    });
+                }
+                return Promise.resolve({
+                    ok: true,
+                    text: () => Promise.resolve(JSON.stringify(mockResults))
+                });
+            });
+
+            await run();
+
+            expect(core.setFailed).not.toHaveBeenCalled();
+        });
+
+        it('should not fail when execution status response has empty body, stop polling', async () => {
+            core.getInput = jest.fn().mockImplementation((name) => {
+                if (name === 'suite-id') return 'test-suite-id';
+                if (name === 'payload') return JSON.stringify({ stories: [{ id: 1, entryHref: 'http://example.com' }] });
+                return null;
+            });
+            global.fetch = jest.fn().mockImplementation((url) => {
+                if (url.includes('/trigger')) {
+                    return Promise.resolve({
+                        ok: true,
+                        text: () => Promise.resolve(JSON.stringify({
+                            executionId: 'test-execution',
+                            url: 'http://test.com/execution'
+                        }))
+                    });
+                }
+                return Promise.resolve({
+                    ok: true,
+                    text: () => Promise.resolve('')
+                });
+            });
+
+            await run();
+
+            expect(core.setFailed).not.toHaveBeenCalled();
+            const executionCalls = global.fetch.mock.calls.filter(call => call[0].includes('/execution/'));
+            expect(executionCalls.length).toBe(1);
+        }, 20000);
 
         it('should handle invalid JSON payload', async () => {
             core.getInput = jest.fn().mockImplementation((name) => {
