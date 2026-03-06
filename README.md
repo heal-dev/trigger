@@ -1,5 +1,7 @@
 # Trigger
 
+> ⚠️ **This repository has been archived.** Please use [heal-dev/heal-trigger](https://github.com/heal-dev/heal-trigger) instead.
+
 This GitHub Action triggers a test suite execution on Heal.dev directly from your continuous integration (CI) workflow. With this action, you can seamlessly integrate Heal's testing capabilities into your development process, ensuring that your applications are thoroughly tested and results are available right in your pull requests.
 
 ## Usage
